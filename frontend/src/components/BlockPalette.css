@@ -1,0 +1,87 @@
+.block-palette {
+  padding: 24px;
+  height: 100%;
+}
+
+.palette-header {
+  margin-bottom: 24px;
+}
+
+.palette-header h2 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+  letter-spacing: 0.5px;
+}
+
+.palette-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.palette-blocks {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.palette-block {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 20px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  cursor: grab;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1), 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.palette-block::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--block-color);
+  box-shadow: 0 0 10px var(--block-color);
+}
+
+.palette-block:hover {
+  border-color: var(--border-hover);
+  background: var(--bg-hover);
+  box-shadow: 0 0 20px rgba(0, 174, 225, 0.3);
+}
+
+.palette-block:active {
+  cursor: grabbing;
+}
+
+.block-icon-wrapper {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 174, 225, 0.15);
+  border-radius: 16px;
+  color: var(--block-color);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.block-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.3px;
+}
+

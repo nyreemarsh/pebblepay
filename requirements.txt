@@ -1,0 +1,3 @@
+# --- SpoonOS & Agents ---
+# Install spoon-core (SpoonOS) in editable mode from local directory
+-e ../spoon-core

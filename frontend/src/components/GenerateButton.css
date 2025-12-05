@@ -1,0 +1,68 @@
+.generate-button-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.generate-button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 40px;
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  color: white;
+  font-size: 17px;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 
+    0 4px 24px rgba(0, 174, 225, 0.5),
+    0 0 40px rgba(234, 145, 227, 0.3),
+    0 0 1px rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+  letter-spacing: 0.5px;
+}
+
+.generate-button:hover:not(.disabled) {
+  box-shadow: 
+    0 0 30px rgba(0, 174, 225, 0.8),
+    0 0 60px rgba(234, 145, 227, 0.5);
+  transform: translateY(-2px);
+}
+
+.generate-button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  color: var(--text-muted);
+  box-shadow: none;
+}
+
+.button-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 12px;
+  pointer-events: none;
+}
+
+.generate-button span {
+  position: relative;
+  z-index: 1;
+}
+
+.generate-button svg {
+  position: relative;
+  z-index: 1;
+}
+
