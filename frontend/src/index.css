@@ -5,23 +5,31 @@
 }
 
 :root {
-  /* Hackathon Color Palette - Green, Purple, Blue */
-  --neon-cyan: #00AEE1; /* Blue */
-  --neon-green: #00E599; /* Green/Teal */
-  --neon-pink: #EA91E3; /* Pink */
-  --neon-purple: #9C2780; /* Purple */
-  --neon-lilac: #C8A2C8; /* Lilac Purple */
+  /* New Color Palette */
+  --color-teal: #1D838D; /* Primary accent - Teal */
+  --color-green: #31A667; /* Secondary accent - Green */
+  --color-light-green: #A8D6A8; /* Light green accent */
+  --color-light-blue: #B7D0E3; /* Light blue accent */
+  --color-dark-gray: #2B3034; /* Secondary background */
+  --color-very-dark-gray: #252A2E; /* Primary background */
   
-  /* Dark Background Colors - Really Dark Green */
-  --bg-primary: #0a0f0a;
-  --bg-secondary: #121812;
-  --bg-card: rgba(18, 24, 18, 0.8);
-  --bg-hover: rgba(0, 174, 225, 0.1);
+  /* Legacy variable names for compatibility */
+  --neon-cyan: #1D838D;
+  --neon-green: #31A667;
+  --neon-pink: #A8D6A8;
+  --neon-purple: #B7D0E3;
+  --neon-lilac: #B7D0E3;
+  
+  /* Background Colors */
+  --bg-primary: #252A2E;
+  --bg-secondary: #2B3034;
+  --bg-card: rgba(43, 48, 52, 0.8);
+  --bg-hover: rgba(29, 131, 141, 0.1);
   
   /* Glassmorphism Colors */
-  --glass-bg: rgba(18, 24, 18, 0.4);
+  --glass-bg: rgba(43, 48, 52, 0.4);
   --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-glow: rgba(0, 174, 225, 0.2);
+  --glass-glow: rgba(29, 131, 141, 0.2);
   
   /* Text Colors */
   --text-primary: #ffffff;
@@ -29,14 +37,14 @@
   --text-muted: rgba(255, 255, 255, 0.5);
   
   /* Border Colors */
-  --border-primary: rgba(0, 174, 225, 0.3);
-  --border-hover: rgba(0, 174, 225, 0.6);
+  --border-primary: rgba(29, 131, 141, 0.3);
+  --border-hover: rgba(29, 131, 141, 0.6);
   
   /* Shadows */
-  --shadow-neon-cyan: 0 0 20px rgba(0, 174, 225, 0.5);
-  --shadow-neon-green: 0 0 20px rgba(0, 229, 153, 0.5);
-  --shadow-neon-pink: 0 0 20px rgba(234, 145, 227, 0.5);
-  --shadow-neon-purple: 0 0 20px rgba(156, 39, 128, 0.5);
+  --shadow-neon-cyan: 0 0 20px rgba(29, 131, 141, 0.5);
+  --shadow-neon-green: 0 0 20px rgba(49, 166, 103, 0.5);
+  --shadow-neon-pink: 0 0 20px rgba(168, 214, 168, 0.5);
+  --shadow-neon-purple: 0 0 20px rgba(183, 208, 227, 0.5);
 }
 
 body {
@@ -64,23 +72,15 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--neon-cyan);
+  background: var(--color-teal);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--neon-pink);
+  background: var(--color-green);
 }
 
-/* Neon Glow Animation */
-@keyframes neon-glow {
-  0%, 100% {
-    box-shadow: 0 0 5px currentColor, 0 0 10px currentColor, 0 0 15px currentColor;
-  }
-  50% {
-    box-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor;
-  }
-}
+/* Neon Glow Animation - Removed for flat design */
 
 /* Pulse Animation */
 @keyframes pulse {

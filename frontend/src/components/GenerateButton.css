@@ -10,7 +10,7 @@
   align-items: center;
   gap: 12px;
   padding: 18px 40px;
-  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-pink));
+  background: var(--neon-green);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 24px;
   color: white;
@@ -22,18 +22,11 @@
   overflow: hidden;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  box-shadow: 
-    0 4px 24px rgba(0, 174, 225, 0.5),
-    0 0 40px rgba(234, 145, 227, 0.3),
-    0 0 1px rgba(255, 255, 255, 0.2);
   transition: all 0.3s ease;
   letter-spacing: 0.5px;
 }
 
 .generate-button:hover:not(.disabled) {
-  box-shadow: 
-    0 0 30px rgba(0, 174, 225, 0.8),
-    0 0 60px rgba(234, 145, 227, 0.5);
   transform: translateY(-2px);
 }
 

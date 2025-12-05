@@ -22,23 +22,6 @@ function GenerateButton({ onClick, disabled }) {
       >
         <Sparkles size={20} />
         <span>Generate Smart Contract</span>
-        {!disabled && (
-          <motion.div
-            className="button-glow"
-            animate={{
-              boxShadow: [
-                '0 0 20px rgba(0, 174, 225, 0.5)',
-                '0 0 40px rgba(0, 174, 225, 0.8)',
-                '0 0 20px rgba(0, 174, 225, 0.5)',
-              ],
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
-          />
-        )}
       </motion.button>
     </motion.div>
   )

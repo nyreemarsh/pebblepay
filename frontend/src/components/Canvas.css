@@ -41,9 +41,6 @@ canvas {
   border-radius: 16px;
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  box-shadow: 
-    0 4px 24px rgba(0, 0, 0, 0.3),
-    0 0 1px rgba(255, 255, 255, 0.1);
   z-index: 100;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -53,10 +50,6 @@ canvas {
 .canvas-bin.bin-active {
   background: rgba(255, 77, 77, 0.2);
   border-color: rgba(255, 77, 77, 0.5);
-  box-shadow: 
-    0 4px 24px rgba(255, 77, 77, 0.4),
-    0 0 20px rgba(255, 77, 77, 0.3),
-    0 0 1px rgba(255, 255, 255, 0.2);
 }
 
 .bin-icon {
@@ -67,15 +60,7 @@ canvas {
   transition: color 0.3s ease;
 }
 
-.bin-icon svg {
-  filter: drop-shadow(0 0 8px rgba(255, 77, 77, 0.5));
-}
-
 .canvas-bin.bin-active .bin-icon {
   color: #ff6b6b;
-}
-
-.canvas-bin.bin-active .bin-icon svg {
-  filter: drop-shadow(0 0 16px rgba(255, 77, 77, 0.8));
 }
 

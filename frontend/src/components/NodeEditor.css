@@ -10,10 +10,6 @@
   border-radius: 24px 0 0 24px;
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  box-shadow: 
-    -4px 0 24px rgba(0, 174, 225, 0.3),
-    inset 0 0 20px rgba(0, 174, 225, 0.05),
-    0 0 1px rgba(255, 255, 255, 0.1);
   z-index: 100;
   display: flex;
   flex-direction: column;
@@ -89,14 +85,12 @@
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .editor-field input:focus,
 .editor-field textarea:focus {
   outline: none;
   border-color: var(--neon-cyan);
-  box-shadow: 0 0 15px rgba(0, 174, 225, 0.3);
 }
 
 .editor-field input.disabled-input {
@@ -129,12 +123,10 @@
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 4px 20px rgba(0, 174, 225, 0.5), 0 0 1px rgba(255, 255, 255, 0.2);
   letter-spacing: 0.3px;
 }
 
 .save-button:hover {
-  box-shadow: 0 0 30px rgba(0, 174, 225, 0.6);
   transform: translateY(-2px);
 }
 

@@ -4,46 +4,46 @@ import { motion } from 'framer-motion'
 import { Trash2 } from 'lucide-react'
 import './Canvas.css'
 
-// Node configuration with neon colors
+// Node configuration with new color palette
 const NODE_CONFIG = {
   payment: {
-    color: '#00AEE1', // neon-cyan
+    color: '#1D838D', // teal
     icon: '💰',
     width: 160,
     height: 80,
   },
   party: {
-    color: '#EA91E3', // neon-pink
+    color: '#31A667', // green
     icon: '👥',
     width: 160,
     height: 80,
   },
   condition: {
-    color: '#00E599', // neon-green
+    color: '#A8D6A8', // light green
     icon: '🛡️',
     width: 160,
     height: 80,
   },
   milestone: {
-    color: '#9C2780', // neon-purple
+    color: '#B7D0E3', // light blue
     icon: '📅',
     width: 160,
     height: 80,
   },
   termination: {
-    color: '#00AEE1',
+    color: '#1D838D', // teal
     icon: '📄',
     width: 160,
     height: 80,
   },
   connection: {
-    color: '#EA91E3',
+    color: '#31A667', // green
     icon: '🔗',
     width: 160,
     height: 80,
   },
   action: {
-    color: '#00E599', // neon-green
+    color: '#A8D6A8', // light green
     icon: '⚡',
     width: 160,
     height: 80,
@@ -56,7 +56,6 @@ function Canvas({ blocks, onBlocksChange, onNodeSelect, selectedNodeId, edges = 
   const [connectingFrom, setConnectingFrom] = useState(null)
   const [tempLineEnd, setTempLineEnd] = useState(null)
   const [draggedNodeId, setDraggedNodeId] = useState(null)
-  const [nodeVelocities, setNodeVelocities] = useState({})
   const [isOverBin, setIsOverBin] = useState(false)
   const [draggedBlockId, setDraggedBlockId] = useState(null)
   const [stageSize, setStageSize] = useState({
@@ -133,7 +132,10 @@ function Canvas({ blocks, onBlocksChange, onNodeSelect, selectedNodeId, edges = 
 
   // Handle connection point drag start or click
   const handleConnectionStart = useCallback((nodeId, side, e) => {
-    if (e) e.cancelBubble = true
+    if (e) {
+      e.cancelBubble = true
+      e.evt?.stopPropagation()
+    }
     setConnectingFrom({ nodeId, side })
     const point = getConnectionPoint(nodeId, side)
     setTempLineEnd(point)
@@ -203,26 +205,14 @@ function Canvas({ blocks, onBlocksChange, onNodeSelect, selectedNodeId, edges = 
     setTempLineEnd(null)
   }, [connectingFrom, edges, onEdgesChange])
 
-  // Handle node drag with physics
+  // Handle node drag
   const handleNodeDragStart = useCallback((nodeId, e) => {
     setIsDragging(true)
     setDraggedNodeId(nodeId)
     setDraggedBlockId(nodeId)
-    setNodeVelocities(prev => ({ ...prev, [nodeId]: { vx: 0, vy: 0 } }))
   }, [])
 
   const handleNodeDrag = useCallback((nodeId, e) => {
-    if (!nodeVelocities[nodeId]) return
-    
-    const node = e.target
-    const newVx = node.x() - (blocks.find(b => b.id === nodeId)?.position.x || 0)
-    const newVy = node.y() - (blocks.find(b => b.id === nodeId)?.position.y || 0)
-    
-    setNodeVelocities(prev => ({
-      ...prev,
-      [nodeId]: { vx: newVx, vy: newVy }
-    }))
-    
     // Check if over bin area (bottom 100px of canvas)
     const stage = e.target.getStage()
     const pointerPos = stage.getPointerPosition()
@@ -230,7 +220,7 @@ function Canvas({ blocks, onBlocksChange, onNodeSelect, selectedNodeId, edges = 
       const binAreaTop = stageSize.height - 100
       setIsOverBin(pointerPos.y > binAreaTop)
     }
-  }, [blocks, nodeVelocities, stageSize.height])
+  }, [stageSize.height])
 
   const handleNodeDragEnd = useCallback((nodeId, newX, newY) => {
     // Check if dropped over bin
@@ -242,47 +232,18 @@ function Canvas({ blocks, onBlocksChange, onNodeSelect, selectedNodeId, edges = 
       return
     }
     
-    const velocity = nodeVelocities[nodeId] || { vx: 0, vy: 0 }
-    const damping = 0.3 // Much higher damping for subtle movement
-    const maxMovement = 15 // Maximum pixels to move after drag
+    // Update block position to new location
+    onBlocksChange(blocks.map((block) =>
+      block.id === nodeId
+        ? { ...block, position: { x: newX, y: newY } }
+        : block
+    ))
     
-    // Apply subtle momentum
-    let finalX = newX
-    let finalY = newY
-    let vx = Math.max(-maxMovement, Math.min(maxMovement, velocity.vx * damping))
-    let vy = Math.max(-maxMovement, Math.min(maxMovement, velocity.vy * damping))
-    
-    // Continue movement with decreasing velocity (very subtle)
-    const applyMomentum = () => {
-      if (Math.abs(vx) < 0.5 && Math.abs(vy) < 0.5) {
-        onBlocksChange(blocks.map((block) =>
-          block.id === nodeId
-            ? { ...block, position: { x: finalX, y: finalY } }
-            : block
-        ))
-        setIsDragging(false)
-        setDraggedNodeId(null)
-        setDraggedBlockId(null)
-        setIsOverBin(false)
-        return
-      }
-      
-      finalX += vx
-      finalY += vy
-      vx *= damping
-      vy *= damping
-      
-      onBlocksChange(blocks.map((block) =>
-        block.id === nodeId
-          ? { ...block, position: { x: finalX, y: finalY } }
-          : block
-      ))
-      
-      requestAnimationFrame(applyMomentum)
-    }
-    
-    applyMomentum()
-  }, [blocks, nodeVelocities, onBlocksChange])
+    setIsDragging(false)
+    setDraggedNodeId(null)
+    setDraggedBlockId(null)
+    setIsOverBin(false)
+  }, [blocks, isOverBin, onBlocksChange, onDeleteBlock])
 
   // Handle node click
   const handleNodeClick = useCallback((nodeId, e) => {
@@ -327,12 +288,6 @@ function Canvas({ blocks, onBlocksChange, onNodeSelect, selectedNodeId, edges = 
       onDrop={handleDrop}
       onDragOver={handleDragOver}
       onMouseMove={handleConnectionDrag}
-      onMouseUp={() => {
-        if (connectingFrom) {
-          setConnectingFrom(null)
-          setTempLineEnd(null)
-        }
-      }}
     >
       <Stage
         ref={stageRef}
@@ -356,13 +311,11 @@ function Canvas({ blocks, onBlocksChange, onNodeSelect, selectedNodeId, edges = 
                     toPoint.x,
                     toPoint.y,
                   ]}
-                  stroke="#00AEE1"
+                  stroke="#1D838D"
                   strokeWidth={2}
-                  fill="#00AEE1"
+                  fill="#1D838D"
                   pointerLength={10}
                   pointerWidth={8}
-                  shadowColor="#00AEE1"
-                  shadowBlur={10}
                 />
               </Group>
             )
@@ -377,11 +330,9 @@ function Canvas({ blocks, onBlocksChange, onNodeSelect, selectedNodeId, edges = 
                 tempLineEnd.x,
                 tempLineEnd.y,
               ]}
-              stroke="#00AEE1"
+              stroke="#1D838D"
               strokeWidth={2}
               dash={[5, 5]}
-              shadowColor="#00AEE1"
-              shadowBlur={5}
             />
           )}
 
@@ -394,6 +345,7 @@ function Canvas({ blocks, onBlocksChange, onNodeSelect, selectedNodeId, edges = 
             return (
               <Group
                 key={node.id}
+                id={`node-${node.id}`}
                 x={node.position.x}
                 y={node.position.y}
                 draggable
@@ -401,7 +353,8 @@ function Canvas({ blocks, onBlocksChange, onNodeSelect, selectedNodeId, edges = 
                   // Don't drag if clicking on connection point
                   if (e.target.name() === 'connection-point') {
                     e.cancelBubble = true
-                    return
+                    e.evt?.stopPropagation()
+                    return false
                   }
                   handleNodeDragStart(node.id, e)
                 }}
@@ -430,12 +383,10 @@ function Canvas({ blocks, onBlocksChange, onNodeSelect, selectedNodeId, edges = 
                     y={-6}
                     width={config.width + 12}
                     height={config.height + 12}
-                    stroke="#00E599"
+                    stroke="#31A667"
                     strokeWidth={2}
                     cornerRadius={12}
-                    shadowColor="#00E599"
-                    shadowBlur={15}
-                    fill="rgba(0, 229, 153, 0.1)"
+                    fill="rgba(49, 166, 103, 0.1)"
                   />
                 )}
 
@@ -445,9 +396,6 @@ function Canvas({ blocks, onBlocksChange, onNodeSelect, selectedNodeId, edges = 
                   height={config.height}
                   cornerRadius={8}
                   fill={config.color}
-                  shadowColor={config.color}
-                  shadowBlur={isDragging && isSelected ? 20 : 10}
-                  shadowOpacity={0.6}
                 />
 
                 {/* Label */}
@@ -481,21 +429,31 @@ function Canvas({ blocks, onBlocksChange, onNodeSelect, selectedNodeId, edges = 
                   x={0}
                   y={config.height / 2}
                   radius={10}
-                  fill={connectingFrom?.nodeId === node.id && connectingFrom?.side === 'left' ? '#00E599' : config.color}
+                  fill={connectingFrom?.nodeId === node.id && connectingFrom?.side === 'left' ? '#31A667' : config.color}
                   stroke="#FFFFFF"
                   strokeWidth={2}
-                  shadowColor={config.color}
-                  shadowBlur={8}
                   draggable
+                  hitFunc={(context, shape) => {
+                    // Increase hit area to 20px radius for easier clicking
+                    context.beginPath()
+                    context.arc(0, 0, 20, 0, Math.PI * 2, true)
+                    context.fillStrokeShape(shape)
+                  }}
                   onClick={(e) => {
                     e.cancelBubble = true
+                    e.evt?.stopPropagation()
                     handleConnectionClick(node.id, 'left', e)
                   }}
                   onTap={(e) => {
                     e.cancelBubble = true
+                    e.evt?.stopPropagation()
                     handleConnectionClick(node.id, 'left', e)
                   }}
-                  onDragStart={(e) => handleConnectionStart(node.id, 'left', e)}
+                  onDragStart={(e) => {
+                    e.cancelBubble = true
+                    e.evt?.stopPropagation()
+                    handleConnectionStart(node.id, 'left', e)
+                  }}
                   onDragMove={(e) => {
                     if (!connectingFrom) return
                     const stage = e.target.getStage()
@@ -505,6 +463,8 @@ function Canvas({ blocks, onBlocksChange, onNodeSelect, selectedNodeId, edges = 
                     }
                   }}
                   onDragEnd={(e) => {
+                    e.cancelBubble = true
+                    e.evt?.stopPropagation()
                     const stage = e.target.getStage()
                     const pos = stage.getPointerPosition()
                     if (!pos) {
@@ -515,7 +475,7 @@ function Canvas({ blocks, onBlocksChange, onNodeSelect, selectedNodeId, edges = 
                     // Find which node/connection point was under the cursor
                     let targetNodeId = null
                     let targetSide = null
-                    let minDist = 20 // Increased hit radius
+                    let minDist = 30 // Increased hit radius for easier connection
                     blocks.forEach((block) => {
                       if (block.id === node.id) return
                       const leftPoint = getConnectionPoint(block.id, 'left')
@@ -554,21 +514,31 @@ function Canvas({ blocks, onBlocksChange, onNodeSelect, selectedNodeId, edges = 
                   x={config.width}
                   y={config.height / 2}
                   radius={10}
-                  fill={connectingFrom?.nodeId === node.id && connectingFrom?.side === 'right' ? '#00E599' : config.color}
+                  fill={connectingFrom?.nodeId === node.id && connectingFrom?.side === 'right' ? '#31A667' : config.color}
                   stroke="#FFFFFF"
                   strokeWidth={2}
-                  shadowColor={config.color}
-                  shadowBlur={8}
                   draggable
+                  hitFunc={(context, shape) => {
+                    // Increase hit area to 20px radius for easier clicking
+                    context.beginPath()
+                    context.arc(0, 0, 20, 0, Math.PI * 2, true)
+                    context.fillStrokeShape(shape)
+                  }}
                   onClick={(e) => {
                     e.cancelBubble = true
+                    e.evt?.stopPropagation()
                     handleConnectionClick(node.id, 'right', e)
                   }}
                   onTap={(e) => {
                     e.cancelBubble = true
+                    e.evt?.stopPropagation()
                     handleConnectionClick(node.id, 'right', e)
                   }}
-                  onDragStart={(e) => handleConnectionStart(node.id, 'right', e)}
+                  onDragStart={(e) => {
+                    e.cancelBubble = true
+                    e.evt?.stopPropagation()
+                    handleConnectionStart(node.id, 'right', e)
+                  }}
                   onDragMove={(e) => {
                     if (!connectingFrom) return
                     const stage = e.target.getStage()
@@ -578,6 +548,8 @@ function Canvas({ blocks, onBlocksChange, onNodeSelect, selectedNodeId, edges = 
                     }
                   }}
                   onDragEnd={(e) => {
+                    e.cancelBubble = true
+                    e.evt?.stopPropagation()
                     const stage = e.target.getStage()
                     const pos = stage.getPointerPosition()
                     if (!pos) {
@@ -587,7 +559,7 @@ function Canvas({ blocks, onBlocksChange, onNodeSelect, selectedNodeId, edges = 
                     }
                     let targetNodeId = null
                     let targetSide = null
-                    let minDist = 20 // Increased hit radius
+                    let minDist = 30 // Increased hit radius for easier connection
                     blocks.forEach((block) => {
                       if (block.id === node.id) return
                       const leftPoint = getConnectionPoint(block.id, 'left')
