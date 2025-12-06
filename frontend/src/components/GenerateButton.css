@@ -10,10 +10,10 @@
   align-items: center;
   gap: 12px;
   padding: 18px 40px;
-  background: var(--color-action-green);
+  background: transparent;
   border: none;
   border-radius: 20px;
-  color: var(--bg-primary);
+  color: #6B5353;
   font-size: 17px;
   font-weight: 400;
   font-family: 'Nunito', sans-serif;
@@ -22,20 +22,26 @@
   overflow: hidden;
   transition: all 0.3s ease;
   letter-spacing: 0.5px;
-  box-shadow: var(--shadow-md);
+  box-shadow: none;
 }
 
-.generate-button:hover:not(.disabled) {
+.generate-button:not(.disabled):not(.loading) {
+  background: #FEEFB4;
+  color: #6B5353;
+}
+
+.generate-button:hover:not(.disabled):not(.loading) {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: none;
+  background: #FEEFB4;
 }
 
 .generate-button.disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  background: var(--bg-secondary);
+  background: transparent;
   border: none;
-  color: var(--text-muted);
+  color: #6B5353;
   box-shadow: none;
 }
 

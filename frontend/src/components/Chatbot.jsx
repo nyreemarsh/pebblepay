@@ -130,10 +130,18 @@ function Chatbot({ messages, onMessage }) {
     <div className="chatbot">
       <div className="chatbot-header">
         <div className="chatbot-title">
-          <img 
-            src="/assets/images/logos/pibble2.png" 
+          <motion.img 
+            src="/assets/images/logos/i_am_pibble_real.png" 
             alt="Pibble" 
             className="pibble-avatar"
+            whileHover={{
+              rotate: [0, -8, 8, -8, 8, 0],
+              transition: { 
+                duration: 0.4, 
+                repeat: Infinity,
+                ease: "easeInOut"
+              }
+            }}
           />
           <div className="chatbot-title-text">
             <h2>I am Pibble.</h2>
@@ -206,6 +214,13 @@ function Chatbot({ messages, onMessage }) {
               console.log('Voice input clicked')
             }}
             whileTap={{ scale: 0.95 }}
+<<<<<<< Updated upstream
+=======
+            style={{
+              background: scribe.isConnected ? 'rgba(255, 77, 77, 0.2)' : 'transparent',
+              color: scribe.isConnected ? '#ff6b6b' : 'var(--text-muted)'
+            }}
+>>>>>>> Stashed changes
           >
             <Mic size={18} />
           </motion.button>

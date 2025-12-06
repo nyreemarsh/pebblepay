@@ -13,13 +13,13 @@ import {
 import './BlockPalette.css'
 
 const blockTypes = [
-  { type: 'party', label: 'party', icon: Users, color: '#E885A8' }, // muted coral pink
-  { type: 'asset', label: 'asset', icon: DollarSign, color: '#5BC4B8' }, // muted turquoise
-  { type: 'amount', label: 'amount', icon: DollarSign, color: '#E6C85C' }, // muted yellow
-  { type: 'condition', label: 'condition', icon: Shield, color: '#E69D6B' }, // muted orange
-  { type: 'trigger', label: 'trigger', icon: Zap, color: '#B08BC4' }, // muted purple
-  { type: 'timeout', label: 'timeout', icon: Calendar, color: '#E85BA3' }, // muted hot pink
-  { type: 'module', label: 'module', icon: FileText, color: '#5DB885' }, // muted green
+  { type: 'party', label: 'party', icon: Users, color: '#78BEB1' },
+  { type: 'asset', label: 'asset', icon: DollarSign, color: '#D29AE7' },
+  { type: 'amount', label: 'amount', icon: DollarSign, color: '#DD70B4' },
+  { type: 'condition', label: 'condition', icon: Shield, color: '#81BDF7' },
+  { type: 'trigger', label: 'trigger', icon: Zap, color: '#F5E6FB' },
+  { type: 'timeout', label: 'timeout', icon: Calendar, color: '#FBD43B' },
+  { type: 'module', label: 'module', icon: FileText, color: '#F7B2A8' },
 ]
 
 function BlockPalette({ onAddBlock }) {

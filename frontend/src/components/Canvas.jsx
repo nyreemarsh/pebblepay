@@ -50,32 +50,86 @@ function CanvasFlow({
     target: edge.to,
     sourceHandle: edge.fromSide || 'right',
     targetHandle: edge.toSide || 'left',
-    style: { stroke: '#FFFFFF', strokeWidth: 2 },
+      style: { stroke: '#6B5353', strokeWidth: 2 },
     markerEnd: {
       type: 'arrowclosed',
-      color: '#FFFFFF',
+      color: '#6B5353',
     },
   }))
 
   const edgesRef = useRef(initialEdges)
+  const isUpdatingPositionRef = useRef(false)
+  const prevBlocksRef = useRef(blocks)
+  
+  // Initialize prevBlocksRef on mount
+  React.useEffect(() => {
+    if (prevBlocksRef.current.length === 0 && blocks.length > 0) {
+      prevBlocksRef.current = blocks
+    }
+  }, [blocks])
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
   const [edges, setEdges, onEdgesChangeInternal] = useEdgesState(initialEdges)
 
   // Sync external blocks/edges changes to React Flow state
+  // Only sync when there are structural changes (new/deleted nodes or data changes), not position-only changes
   React.useEffect(() => {
-    const newNodes = blocks.map((block) => ({
-      id: block.id,
-      type: 'custom',
-      position: block.position,
-      data: {
-        ...block.data,
-        type: block.type,
-      },
-      selected: selectedNodeId === block.id,
-    }))
-    setNodes(newNodes)
-  }, [blocks, selectedNodeId, setNodes])
+    // Skip sync if we're in the middle of updating positions
+    if (isUpdatingPositionRef.current) {
+      isUpdatingPositionRef.current = false
+      prevBlocksRef.current = blocks
+      return
+    }
+
+    // Check if there are structural changes (new nodes, deleted nodes, or data changes)
+    const prevBlockIds = new Set(prevBlocksRef.current.map(b => b.id))
+    const currentBlockIds = new Set(blocks.map(b => b.id))
+    
+    const hasStructuralChanges = 
+      prevBlockIds.size !== currentBlockIds.size ||
+      [...currentBlockIds].some(id => !prevBlockIds.has(id)) ||
+      blocks.some(block => {
+        const prevBlock = prevBlocksRef.current.find(b => b.id === block.id)
+        if (!prevBlock) return true // New block
+        // Check if data changed (not just position)
+        return JSON.stringify(prevBlock.data) !== JSON.stringify(block.data) ||
+               prevBlock.type !== block.type
+      })
+
+    if (hasStructuralChanges) {
+      const newNodes = blocks.map((block) => {
+        // Preserve current position from React Flow if node exists
+        const existingNode = nodes.find(n => n.id === block.id)
+        const position = existingNode && 
+          existingNode.position.x === block.position.x && 
+          existingNode.position.y === block.position.y
+          ? existingNode.position 
+          : block.position
+
+    return {
+          id: block.id,
+          type: 'custom',
+          position,
+          data: {
+            ...block.data,
+            type: block.type,
+          },
+          selected: selectedNodeId === block.id,
+        }
+      })
+      setNodes(newNodes)
+    } else {
+      // Only update selection state for existing nodes
+      setNodes(currentNodes => 
+        currentNodes.map(node => ({
+          ...node,
+          selected: selectedNodeId === node.id,
+        }))
+      )
+    }
+
+    prevBlocksRef.current = blocks
+  }, [blocks, selectedNodeId, setNodes, nodes])
 
   React.useEffect(() => {
     const newEdges = (externalEdges || []).map((edge) => ({
@@ -84,10 +138,10 @@ function CanvasFlow({
       target: edge.to,
       sourceHandle: edge.fromSide || 'right',
       targetHandle: edge.toSide || 'left',
-      style: { stroke: '#FFFFFF', strokeWidth: 2 },
+      style: { stroke: '#6B5353', strokeWidth: 2 },
       markerEnd: {
         type: 'arrowclosed',
-        color: '#FFFFFF',
+        color: '#6B5353',
       },
     }))
     setEdges(newEdges)
@@ -168,16 +222,17 @@ function CanvasFlow({
       onNodesChange(changes)
 
       // Update block positions when nodes are dragged
-      changes.forEach((change) => {
-        if (change.type === 'position' && change.position) {
-          const updatedBlocks = blocks.map((block) =>
-            block.id === change.id
-              ? { ...block, position: change.position }
-              : block
-          )
-          onBlocksChange(updatedBlocks)
-        }
-      })
+      const positionChanges = changes.filter(change => change.type === 'position' && change.position)
+      if (positionChanges.length > 0) {
+        isUpdatingPositionRef.current = true
+        const updatedBlocks = blocks.map((block) => {
+          const positionChange = positionChanges.find(c => c.id === block.id)
+          return positionChange
+            ? { ...block, position: positionChange.position }
+            : block
+        })
+        onBlocksChange(updatedBlocks)
+      }
     },
     [blocks, onBlocksChange, onNodesChange]
   )
@@ -202,10 +257,10 @@ function CanvasFlow({
         target: params.target,
         sourceHandle: params.sourceHandle || 'right',
         targetHandle: params.targetHandle || 'left',
-        style: { stroke: '#FFFFFF', strokeWidth: 2 },
+        style: { stroke: '#6B5353', strokeWidth: 2 },
         markerEnd: {
           type: 'arrowclosed',
-          color: '#FFFFFF',
+          color: '#6B5353',
         },
       }
       edgesRef.current = [...edgesRef.current, rfEdge]
@@ -302,13 +357,17 @@ function CanvasFlow({
       {/* Bin/Trash Button */}
       <motion.div
         className={`canvas-bin ${isOverBin ? 'bin-active' : ''}`}
-        initial={{ x: 100, opacity: 0 }}
+        initial={{ scale: 0, opacity: 0 }}
         animate={{ 
-          x: 0, 
-          opacity: 1,
           scale: isOverBin ? 1.15 : 1,
+          opacity: 1,
         }}
-        transition={{ type: 'spring', stiffness: 200 }}
+        transition={{
+          type: 'spring',
+          stiffness: 500,
+          damping: 25,
+          duration: 0.4
+        }}
       >
         <motion.div
           className="bin-icon"

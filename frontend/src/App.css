@@ -4,7 +4,7 @@
   height: 100vh;
   min-height: 100vh;
   width: 100vw;
-  background: #1A3A2E;
+  background: #E9D5AF;
   position: relative;
   overflow: hidden;
 }
@@ -15,7 +15,7 @@
   flex: 1;
   min-height: 0;
   overflow: hidden;
-  gap: 16px;
+  gap: 8px;
   padding: 16px;
   align-items: flex-start;
   height: 100vh;
@@ -25,8 +25,12 @@
   width: 360px;
   height: calc(100vh - 32px);
   min-height: 0;
-  background: #2A4A3E;
+  background: #FFF8EE;
   border-radius: 24px;
+<<<<<<< Updated upstream
+=======
+  border: none;
+>>>>>>> Stashed changes
   overflow-y: auto;
   z-index: 10;
   flex-shrink: 0;
@@ -38,8 +42,12 @@
   height: calc(100vh - 32px);
   min-height: 0;
   position: relative;
-  background: #2A4A3E;
+  background: #FFF8EE;
   border-radius: 24px;
+<<<<<<< Updated upstream
+=======
+  border: none;
+>>>>>>> Stashed changes
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -49,20 +57,78 @@
   flex: 1;
   position: relative;
   overflow: hidden;
+<<<<<<< Updated upstream
   background: #2A4A3E;
+=======
+  background: #FFF8EE;
+  min-height: 0;
+>>>>>>> Stashed changes
 }
 
 .sidebar-right {
   width: 350px;
   height: calc(100vh - 32px);
   min-height: 0;
-  background: #2A4A3E;
+  background: #FFF8EE;
   border-radius: 24px;
+<<<<<<< Updated upstream
+=======
+  border: none;
+>>>>>>> Stashed changes
   display: flex;
   flex-direction: column;
   z-index: 10;
   flex-shrink: 0;
   overflow: hidden;
+<<<<<<< Updated upstream
+=======
+  transition: width 0.1s ease;
+}
+
+/* Progress Bar */
+.progress-container {
+  padding: 16px 24px;
+  background: transparent;
+  border-bottom: none;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  color: #6B5353;
+}
+
+.progress-percent {
+  font-weight: 700;
+  color: #78BEB1;
+}
+
+.progress-bar {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #D29AE7 0%, #DD70B4 33.33%, #F7B2A8 66.66%, #FBD43B 100%);
+  border-radius: 4px;
+  transition: width 0.5s ease-out;
+}
+
+.progress-complete {
+  margin-top: 8px;
+  text-align: center;
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: #4CAF50;
+>>>>>>> Stashed changes
 }
 
 /* Generate Button Container */
@@ -72,6 +138,48 @@
   align-items: center;
   padding: 24px;
   background: transparent;
+<<<<<<< Updated upstream
+=======
+  border-top: none;
+}
+
+/* Resize Handle */
+.resize-handle {
+  width: 4px;
+  height: calc(100vh - 32px);
+  background: transparent;
+  cursor: col-resize;
+  position: relative;
+  z-index: 20;
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+}
+
+.resize-handle:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.resize-handle-right {
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+.resize-handle::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 1px;
+}
+
+.resize-handle:hover::after {
+  background: rgba(255, 255, 255, 0.3);
+  width: 3px;
+>>>>>>> Stashed changes
 }
 
 /* Responsive adjustments */

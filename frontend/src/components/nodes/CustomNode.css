@@ -5,7 +5,13 @@
   justify-content: center;
   position: relative;
   cursor: grab;
+<<<<<<< Updated upstream
   transition: all 0.2s ease;
+=======
+  transition: all 0.3s ease;
+  border: none;
+  box-shadow: none;
+>>>>>>> Stashed changes
 }
 
 .custom-node:active {
@@ -14,8 +20,41 @@
 
 .custom-node.selected {
   outline: 2px solid #31A667;
+<<<<<<< Updated upstream
   outline-offset: 6px;
   background-color: rgba(49, 166, 103, 0.1) !important;
+=======
+  outline-offset: 4px;
+}
+
+/* Filled state - vibrant and solid */
+.custom-node.filled {
+  box-shadow: none;
+}
+
+.custom-node.filled:hover {
+  transform: translateY(-2px);
+  box-shadow: none;
+}
+
+/* Ghost state - faded and waiting */
+.custom-node.ghost {
+  border: 3px dashed rgba(107, 83, 83, 0.6);
+  box-shadow: none;
+}
+
+.custom-node.ghost:hover {
+  border-color: rgba(107, 83, 83, 0.8);
+}
+
+.custom-node.ghost .node-label,
+.custom-node.ghost .node-subtitle {
+  opacity: 0.7;
+}
+
+.custom-node.ghost .node-icon {
+  opacity: 0.5;
+>>>>>>> Stashed changes
 }
 
 .node-content {
@@ -26,6 +65,7 @@
   justify-content: center;
   padding: 12px;
   box-sizing: border-box;
+<<<<<<< Updated upstream
 }
 
 .node-label {
@@ -34,6 +74,40 @@
   font-family: 'Nunito', sans-serif;
   color: #FFFFFF;
   margin-bottom: 4px;
+=======
+  position: relative;
+}
+
+.node-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.node-icon {
+  color: #FFFFFF;
+  flex-shrink: 0;
+}
+
+.node-label {
+  font-size: 13px;
+  font-weight: 700;
+  font-family: 'shantell-sans-bouncy', 'Nunito', sans-serif;
+  color: #FFFFFF;
+  text-transform: none;
+  letter-spacing: 0.5px;
+}
+
+.node-subtitle {
+  font-size: 12px;
+  font-family: 'shantell-sans-normal', 'Nunito', sans-serif;
+  color: #FFFFFF;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-left: 26px;
+>>>>>>> Stashed changes
 }
 
 .node-content-text {
@@ -45,6 +119,33 @@
   white-space: nowrap;
 }
 
+<<<<<<< Updated upstream
+=======
+/* Filled indicator checkmark */
+.filled-indicator {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 12px;
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.2);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Special styling for trigger and protection blocks (F5E6FB) - dark text */
+.custom-node.trigger-block .node-icon,
+.custom-node.trigger-block .node-label,
+.custom-node.trigger-block .node-subtitle,
+.custom-node.trigger-block .filled-indicator {
+  color: #6B5353;
+}
+
+>>>>>>> Stashed changes
 /* Handle styling */
 .custom-node .react-flow__handle {
   opacity: 0;
@@ -61,7 +162,44 @@
 }
 
 .custom-node .react-flow__handle-right {
+<<<<<<< Updated upstream
   right: -10px;
+=======
+  right: -8px;
+}
+
+/* Animation for new blocks */
+@keyframes blockPop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.custom-node.new-block {
+  animation: blockPop 0.4s ease-out;
+}
+
+/* Pulse animation for recently updated blocks */
+@keyframes blockPulse {
+  0%, 100% {
+    box-shadow: none;
+  }
+  50% {
+    box-shadow: none;
+  }
+}
+
+.custom-node.just-updated {
+  animation: blockPulse 0.6s ease-in-out;
+>>>>>>> Stashed changes
 }
 
 

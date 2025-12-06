@@ -28,9 +28,9 @@
   --bg-hover: rgba(255, 107, 157, 0.15);
   
   /* Text Colors */
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --text-muted: rgba(255, 255, 255, 0.5);
+  --text-primary: #6B5353;
+  --text-secondary: rgba(107, 83, 83, 0.7);
+  --text-muted: rgba(107, 83, 83, 0.5);
   
   /* Shadows */
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -40,7 +40,7 @@
 
 body {
   font-family: 'Nunito', sans-serif;
-  background: #1A3A2E;
+  background: #E9D5AF;
   color: var(--text-primary);
   overflow: hidden;
   height: 100vh;

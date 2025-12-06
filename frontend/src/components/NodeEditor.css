@@ -1,17 +1,27 @@
-.node-editor {
+.node-editor-backdrop {
   position: fixed;
-  right: 350px; /* Position next to right sidebar */
-  top: 60px; /* Below header */
-  width: 320px;
-  height: calc(100vh - 80px);
-  background: var(--bg-panel);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 99;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.node-editor {
+  position: relative;
+  width: 500px;
+  background: #FFF8EE;
   border: none;
   border-radius: 24px;
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   z-index: 100;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .editor-header {
@@ -24,7 +34,8 @@
 
 .editor-header h3 {
   font-size: 20px;
-  font-weight: 700;
+  font-weight: 500;
+  font-family: 'shantell-sans-bouncy', 'Nunito', sans-serif;
   color: var(--text-primary);
   letter-spacing: 0.5px;
 }
@@ -44,13 +55,14 @@
 }
 
 .close-button:hover {
-  background: var(--bg-hover);
-  color: var(--neon-cyan);
+  background: transparent;
+  color: #6B5353;
+  opacity: 0.7;
 }
 
 .editor-content {
   flex: 1;
-  overflow-y: auto;
+  overflow: visible;
   padding: 20px;
 }
 
@@ -72,21 +84,23 @@
 .editor-field textarea {
   width: 100%;
   padding: 14px 18px;
-  background: var(--bg-secondary);
-  border: none;
+  background: #FFF8EE;
+  border: 1px solid #6B5353;
   border-radius: 16px;
-  color: var(--text-primary);
+  color: #6B5353;
   font-size: 14px;
   font-weight: 500;
   font-family: 'Nunito', sans-serif;
   transition: all 0.3s ease;
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
 }
 
 .editor-field input:focus,
 .editor-field textarea:focus {
-  outline: none;
-  box-shadow: var(--shadow-md);
+  outline: 1px solid #6B5353;
+  outline-offset: 0;
+  box-shadow: none;
+  border-color: #6B5353;
 }
 
 .editor-field input.disabled-input {
@@ -108,20 +122,21 @@
 .save-button {
   width: 100%;
   padding: 14px;
-  background: var(--color-action-green);
+  background: #E9D5AF;
   border: none;
   border-radius: 20px;
-  color: var(--bg-primary);
+  color: #6B5353;
   font-size: 15px;
   font-weight: 700;
   font-family: 'Nunito', sans-serif;
   cursor: pointer;
   transition: all 0.3s ease;
   letter-spacing: 0.3px;
-  box-shadow: var(--shadow-md);
+  box-shadow: none;
 }
 
 .save-button:hover {
   transform: translateY(-2px);
 }
+
 

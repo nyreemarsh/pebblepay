@@ -1,0 +1,265 @@
+.contract-history-sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  padding: 20px 12px 20px 12px;
+  overflow: hidden;
+}
+
+.logo-section {
+  flex-shrink: 0;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  margin-left: -20px;
+  margin-right: -20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  border-bottom: none;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.pibblepay-logo {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.history-sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: none;
+}
+
+.history-sidebar-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: flex-start;
+}
+
+.history-sidebar-title h2 {
+  margin: 0;
+  font-family: 'Nunito', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.history-sidebar-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.refresh-btn,
+.new-contract-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  color: #6B5353;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.refresh-btn:hover,
+.new-contract-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+}
+
+.refresh-btn .spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.history-sidebar-list {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 20px; /* Space between items and scrollbar */
+  margin-right: -12px; /* Move scrollbar closer to edge */
+}
+
+/* Custom scrollbar styling for contract history - matching chatbot */
+.history-sidebar-list::-webkit-scrollbar {
+  width: 12px;
+}
+
+.history-sidebar-list::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 0;
+}
+
+.history-sidebar-list::-webkit-scrollbar-thumb {
+  background: #78BEB1;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.history-sidebar-list::-webkit-scrollbar-thumb:hover {
+  background: #78BEB1;
+  background-clip: padding-box;
+}
+
+/* Firefox scrollbar */
+.history-sidebar-list {
+  scrollbar-width: thick;
+  scrollbar-color: #78BEB1 transparent;
+}
+
+.history-loading,
+.history-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.history-empty p {
+  margin: 12px 0 4px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.history-empty span {
+  font-size: 13px;
+}
+
+.history-sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 0;
+  width: 100%;
+}
+
+.history-sidebar-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+}
+
+.history-sidebar-item.current {
+  background: rgba(221, 112, 180, 0.15);
+  border: none;
+}
+
+.history-sidebar-item.current .history-item-icon {
+  background: rgba(221, 112, 180, 0.2);
+  color: #DD70B4;
+}
+
+.history-item-icon {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(29, 131, 141, 0.2);
+  border-radius: 10px;
+  color: #1D838D;
+  flex-shrink: 0;
+}
+
+.history-sidebar-item.current .complete-badge {
+  background: #DD70B4;
+}
+
+.complete-badge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 16px;
+  height: 16px;
+  background: #4CAF50;
+  border-radius: 50%;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6B5353;
+}
+
+.history-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.history-item-info h3 {
+  margin: 0 0 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.history-item-info p {
+  margin: 0 0 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.history-date {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.history-item-actions {
+  flex-shrink: 0;
+}
+
+.delete-btn {
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  color: #6B5353;
+  transition: all 0.2s ease;
+  opacity: 0;
+}
+
+.history-sidebar-item:hover .delete-btn {
+  opacity: 1;
+}
+
+.delete-btn:hover {
+  background: transparent;
+  color: #6B5353;
+}
+

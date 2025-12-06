@@ -2,7 +2,7 @@
   width: 100%;
   height: 100%;
   position: relative;
-  background: #2A4A3E;
+  background: #FFF8EE;
   overflow: hidden;
 }
 
@@ -191,9 +191,9 @@
 }
 
 .canvas-wrapper .react-flow__controls {
-  background: #2A4A3E;
+  background: #FFF8EE;
   border: none;
-  box-shadow: var(--shadow-md);
+  box-shadow: none;
 }
 
 .canvas-wrapper .react-flow__controls-button {
@@ -216,11 +216,12 @@
 
 /* React Flow edge/arrow styling */
 .canvas-wrapper .react-flow__edge-path {
-  stroke: #FFFFFF !important;
+  stroke: #6B5353 !important;
+  stroke-width: 2px !important;
 }
 
 .canvas-wrapper .react-flow__arrowhead {
-  fill: #FFFFFF !important;
+  fill: #6B5353 !important;
 }
 
 /* Bin/Trash Button */
@@ -234,7 +235,11 @@
   width: 56px;
   height: 56px;
   padding: 0;
+<<<<<<< Updated upstream
   background: var(--bg-panel);
+=======
+  background: transparent;
+>>>>>>> Stashed changes
   border: none;
   border-radius: 16px;
   box-shadow: var(--shadow-md);
@@ -246,14 +251,19 @@
 
 .canvas-bin.bin-active {
   background: rgba(255, 77, 77, 0.2);
+<<<<<<< Updated upstream
   box-shadow: var(--shadow-lg);
+=======
+  border: none;
+  box-shadow: none;
+>>>>>>> Stashed changes
 }
 
 .bin-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary);
+  color: #6B5353;
   transition: color 0.3s ease;
 }
 

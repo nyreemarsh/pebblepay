@@ -11,6 +11,14 @@
   flex-shrink: 0;
   margin-bottom: 20px;
   padding-bottom: 20px;
+<<<<<<< Updated upstream
+=======
+  margin-left: -20px;
+  margin-right: -20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  border-bottom: none;
+>>>>>>> Stashed changes
 }
 
 .logo-container {
@@ -37,9 +45,9 @@
 
 .app-title {
   font-size: 36px;
-  font-weight: 800;
-  font-family: 'Nunito', sans-serif;
-  color: #31A667;
+  font-weight: 500;
+  font-family: 'shantell-sans-bouncy', 'Nunito', sans-serif;
+  color: #81BDF7;
   letter-spacing: 0;
   line-height: 1;
   margin: 0;
@@ -50,7 +58,7 @@
 
 .app-caption {
   font-size: 10px;
-  color: white;
+  color: #6B5353;
   font-family: 'Nunito', sans-serif;
   font-weight: 400;
   margin: 0;
@@ -92,7 +100,7 @@
   align-items: center;
   gap: 12px;
   padding: 16px 20px;
-  background: #2A4A3E;
+  background: #FFF8EE;
   border: none;
   border-radius: 16px;
   cursor: grab;

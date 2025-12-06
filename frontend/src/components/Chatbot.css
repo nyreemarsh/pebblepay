@@ -6,7 +6,11 @@
 }
 
 .chatbot-header {
+<<<<<<< Updated upstream
   padding: 24px;
+=======
+  padding: 16px 20px;
+>>>>>>> Stashed changes
   border-bottom: none;
   background: transparent;
 }
@@ -56,7 +60,39 @@
   padding: 20px;
   display: flex;
   flex-direction: column;
+<<<<<<< Updated upstream
   gap: 16px;
+=======
+  gap: 12px;
+}
+
+/* Custom scrollbar styling for chatbot messages */
+.chatbot-messages::-webkit-scrollbar {
+  width: 12px;
+}
+
+.chatbot-messages::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 8px 0;
+}
+
+.chatbot-messages::-webkit-scrollbar-thumb {
+  background: #78BEB1;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.chatbot-messages::-webkit-scrollbar-thumb:hover {
+  background: #78BEB1;
+  background-clip: padding-box;
+}
+
+/* Firefox scrollbar */
+.chatbot-messages {
+  scrollbar-width: thick;
+  scrollbar-color: #78BEB1 transparent;
+>>>>>>> Stashed changes
 }
 
 .message {
@@ -107,12 +143,14 @@
   flex: 1;
   padding: 16px 20px;
   border-radius: 20px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   line-height: 1.6;
   word-wrap: break-word;
   font-family: 'Nunito', sans-serif;
   margin: 0;
+  background: #D29AE7;
+  color: #FFFFFF;
 }
 
 .audio-button {
@@ -121,8 +159,8 @@
   height: 32px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: var(--text-primary);
+  border: none;
+  color: #6B5353;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -134,7 +172,7 @@
 
 .audio-button:hover {
   background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.3);
+  border: none;
   transform: scale(1.1);
 }
 
@@ -143,15 +181,20 @@
 }
 
 .message.suggestion .message-content p {
-  background: var(--color-green);
+  background: #D29AE7;
   border: none;
-  color: var(--text-primary);
+  color: #FFFFFF;
 }
 
 .message.user .message-content p {
-  background: var(--color-light-green);
+  background: #F5E6FB;
   border: none;
+<<<<<<< Updated upstream
   color: var(--text-primary);
+=======
+  color: #6B5353;
+  text-align: right;
+>>>>>>> Stashed changes
 }
 
 .suggestions {
@@ -164,9 +207,13 @@
 .suggestion-button {
   padding: 14px 20px;
   background: transparent;
+<<<<<<< Updated upstream
   border: 1px solid white;
+=======
+  border: 1px solid #6B5353;
+>>>>>>> Stashed changes
   border-radius: 16px;
-  color: var(--text-primary);
+  color: #6B5353;
   font-size: 14px;
   font-weight: 400;
   text-align: left;
@@ -176,10 +223,10 @@
 }
 
 .suggestion-button:hover {
-  background: transparent;
+  background: rgba(107, 83, 83, 0.1);
   transform: translateX(5px);
-  color: var(--text-secondary);
-  border-color: rgba(255, 255, 255, 0.8);
+  color: #6B5353;
+  border: 1px solid #6B5353;
 }
 
 .chatbot-input {
@@ -201,7 +248,7 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: var(--bg-secondary);
+  background: transparent;
   border: none;
   color: var(--text-muted);
   display: flex;
@@ -214,32 +261,43 @@
 }
 
 .mic-button:hover {
-  background: var(--bg-card);
+  background: transparent;
   color: var(--text-primary);
 }
 
 .chat-input {
   width: 100%;
   padding: 14px 50px 14px 50px;
+<<<<<<< Updated upstream
   background: var(--bg-secondary);
   border: 1px solid white;
+=======
+  background: transparent;
+  border: none;
+>>>>>>> Stashed changes
   border-radius: 24px;
-  color: var(--text-primary);
+  color: #6B5353;
   font-size: 14px;
   font-weight: 400;
   font-family: 'Nunito', sans-serif;
   transition: all 0.3s ease;
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
 }
 
 .chat-input:focus {
   outline: none;
+<<<<<<< Updated upstream
   border-color: white;
   box-shadow: var(--shadow-md);
+=======
+  border: none;
+  box-shadow: none;
+>>>>>>> Stashed changes
 }
 
 .chat-input::placeholder {
-  color: var(--text-muted);
+  color: #6B5353;
+  opacity: 0.6;
 }
 
 .send-button {
@@ -270,3 +328,60 @@
   cursor: not-allowed;
 }
 
+<<<<<<< Updated upstream
+=======
+/* Contract Action Buttons */
+.contract-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.action-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Nunito', sans-serif;
+  border: none;
+}
+
+.action-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.download-btn {
+  background: #78BEB1;
+  color: #FFFFFF;
+  box-shadow: none;
+}
+
+.download-btn:hover:not(:disabled) {
+  box-shadow: none;
+  transform: translateY(-2px);
+}
+
+.explain-btn {
+  background: #81BDF7;
+  color: #FFFFFF;
+  box-shadow: none;
+}
+
+.explain-btn:hover:not(:disabled) {
+  box-shadow: none;
+  transform: translateY(-2px);
+}
+
+/* Message content with markdown-like formatting */
+.message-content p {
+  white-space: pre-wrap;
+}
+
+>>>>>>> Stashed changes
