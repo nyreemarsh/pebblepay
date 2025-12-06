@@ -17,6 +17,12 @@
   gap: 10px;
 }
 
+.chatbot-title-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .chatbot-title h2 {
   font-size: 20px;
   font-weight: 600;
@@ -24,11 +30,22 @@
   letter-spacing: 0.3px;
   margin: 0;
   font-family: 'Nunito', sans-serif;
+  white-space: nowrap;
+}
+
+.chatbot-caption {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  letter-spacing: 0.3px;
+  margin: 0;
+  font-family: 'Nunito', sans-serif;
+  white-space: nowrap;
 }
 
 .pibble-avatar {
-  width: 56px;
-  height: 56px;
+  width: 80px;
+  height: 80px;
   object-fit: contain;
 }
 
@@ -53,8 +70,8 @@
 }
 
 .message-icon {
-  width: 40px;
-  height: 40px;
+  width: 56px;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -70,14 +87,14 @@
 }
 
 .user-icon {
-  background: rgba(168, 214, 168, 0.2);
-  border-color: var(--color-light-green);
+  background: transparent;
+  border: none;
   color: var(--color-light-green);
 }
 
 .message-content {
   flex: 1;
-  max-width: 80%;
+  max-width: 100%;
 }
 
 .message-text-wrapper {

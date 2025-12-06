@@ -2,40 +2,40 @@ import React from 'react'
 import { Handle, Position } from 'reactflow'
 import './CustomNode.css'
 
-// Node configuration matching the original design
+// Node configuration with muted tropical colors
 const NODE_CONFIG = {
   party: {
-    color: '#31A667', // green
+    color: '#E885A8', // muted coral pink
     width: 160,
     height: 80,
   },
   asset: {
-    color: '#A8D6A8', // light green (neon-pink in vars)
+    color: '#5BC4B8', // muted turquoise
     width: 160,
     height: 80,
   },
   amount: {
-    color: '#31A667', // green
+    color: '#E6C85C', // muted yellow
     width: 160,
     height: 80,
   },
   condition: {
-    color: '#B7D0E3', // light blue (neon-purple in vars)
+    color: '#E69D6B', // muted orange
     width: 160,
     height: 80,
   },
   trigger: {
-    color: '#1D838D', // teal (neon-cyan)
+    color: '#B08BC4', // muted purple
     width: 160,
     height: 80,
   },
   timeout: {
-    color: '#A8D6A8', // light green (neon-pink in vars)
+    color: '#E85BA3', // muted hot pink
     width: 160,
     height: 80,
   },
   module: {
-    color: '#31A667', // green
+    color: '#5DB885', // muted green
     width: 160,
     height: 80,
   },

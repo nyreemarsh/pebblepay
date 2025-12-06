@@ -7,6 +7,7 @@ function Chatbot({ messages, onMessage }) {
   const [input, setInput] = useState('')
   const messagesEndRef = useRef(null)
   const lastSpokenMessageId = useRef(null)
+  const hasUserInteracted = useRef(false)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -40,8 +41,9 @@ function Chatbot({ messages, onMessage }) {
       
       console.log('Playing audio...')
       audio.play().catch((error) => {
-        console.error('Error playing audio:', error)
-        alert(`Audio playback error: ${error.message}. Make sure your browser allows audio autoplay.`)
+        // Silently handle autoplay restrictions - user can click the audio button to play manually
+        console.log('Audio autoplay blocked (requires user interaction):', error.message)
+        // Don't show alert - this is expected behavior for autoplay
       })
 
       // Clean up the URL after playback
@@ -55,7 +57,25 @@ function Chatbot({ messages, onMessage }) {
     }
   }
 
-  // Auto-play whenever Pibble sends a message (including initial message on mount)
+  // Track user interaction to enable autoplay
+  useEffect(() => {
+    const handleUserInteraction = () => {
+      hasUserInteracted.current = true
+    }
+
+    // Listen for any user interaction
+    window.addEventListener('click', handleUserInteraction, { once: true })
+    window.addEventListener('keydown', handleUserInteraction, { once: true })
+    window.addEventListener('touchstart', handleUserInteraction, { once: true })
+
+    return () => {
+      window.removeEventListener('click', handleUserInteraction)
+      window.removeEventListener('keydown', handleUserInteraction)
+      window.removeEventListener('touchstart', handleUserInteraction)
+    }
+  }, [])
+
+  // Auto-play whenever Pibble sends a message (only after user interaction)
   useEffect(() => {
     if (messages.length === 0) return
 
@@ -65,10 +85,12 @@ function Chatbot({ messages, onMessage }) {
     // 1. It's from Pibble (not a user message)
     // 2. We haven't spoken this message yet
     // 3. The message has text
+    // 4. User has interacted with the page (to allow autoplay)
     if (
       last.type !== 'user' && 
       last.id !== lastSpokenMessageId.current &&
-      last.text
+      last.text &&
+      hasUserInteracted.current
     ) {
       lastSpokenMessageId.current = last.id
       // Small delay to ensure component is fully mounted
@@ -81,6 +103,9 @@ function Chatbot({ messages, onMessage }) {
 
   const handleSend = () => {
     if (input.trim()) {
+      // Mark that user has interacted (enables autoplay for future messages)
+      hasUserInteracted.current = true
+      
       onMessage({
         id: Date.now(),
         type: 'user',
@@ -91,6 +116,9 @@ function Chatbot({ messages, onMessage }) {
   }
 
   const handleSuggestion = (suggestion) => {
+    // Mark that user has interacted (enables autoplay for future messages)
+    hasUserInteracted.current = true
+    
     onMessage({
       id: Date.now(),
       type: 'user',
@@ -103,11 +131,14 @@ function Chatbot({ messages, onMessage }) {
       <div className="chatbot-header">
         <div className="chatbot-title">
           <img 
-            src="/assets/images/logos/i_am_big_pibble.png" 
+            src="/assets/images/logos/pibble2.png" 
             alt="Pibble" 
             className="pibble-avatar"
           />
-          <h2>I am Pibble.</h2>
+          <div className="chatbot-title-text">
+            <h2>I am Pibble.</h2>
+            <p className="chatbot-caption">wash my belly.</p>
+          </div>
         </div>
       </div>
 
@@ -122,15 +153,6 @@ function Chatbot({ messages, onMessage }) {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
             >
-              {message.type === 'suggestion' && (
-                <div className="message-icon">
-                  <img 
-                    src="/assets/images/logos/i_am_big_pibble.png" 
-                    alt="Pibble" 
-                    className="message-pibble-icon"
-                  />
-                </div>
-              )}
               {message.type === 'user' && (
                 <div className="message-icon user-icon">
                   <User size={16} />
