@@ -362,6 +362,7 @@ function App() {
         </div>
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         {/* Node Editor (slides in when node is selected) */}
         {selectedNodeId && (
           <NodeEditor
@@ -371,6 +372,8 @@ function App() {
           />
         )}
 =======
+=======
+>>>>>>> Stashed changes
         {/* Right Resize Handle */}
         <div
           className="resize-handle resize-handle-right"

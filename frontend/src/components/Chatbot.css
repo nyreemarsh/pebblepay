@@ -10,6 +10,9 @@
   padding: 24px;
 =======
   padding: 16px 20px;
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
   border-bottom: none;
   background: transparent;
@@ -92,6 +95,9 @@
 .chatbot-messages {
   scrollbar-width: thick;
   scrollbar-color: #78BEB1 transparent;
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 }
 
@@ -184,14 +190,75 @@
   background: #D29AE7;
   border: none;
   color: #FFFFFF;
+<<<<<<< Updated upstream
+=======
+}
+
+.message.thinking .message-content p {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  opacity: 0.8;
+}
+
+.thinking-indicator {
+  padding: 12px 24px;
+  text-align: center;
+}
+
+.thinking-text {
+  display: inline;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.thinking-dots {
+  display: inline-block;
+  width: 24px;
+  text-align: left;
+}
+
+.thinking-dots .dot {
+  display: inline-block;
+  animation: thinkingDot 1.4s infinite;
+  animation-fill-mode: both;
+}
+
+.thinking-dots .dot:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.thinking-dots .dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.thinking-dots .dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes thinkingDot {
+  0%, 60%, 100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-4px);
+  }
+>>>>>>> Stashed changes
 }
 
 .message.user .message-content p {
   background: #F5E6FB;
   border: none;
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   color: var(--text-primary);
 =======
+=======
+>>>>>>> Stashed changes
   color: #6B5353;
   text-align: right;
 >>>>>>> Stashed changes
@@ -208,7 +275,11 @@
   padding: 14px 20px;
   background: transparent;
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   border: 1px solid white;
+=======
+  border: 1px solid #6B5353;
+>>>>>>> Stashed changes
 =======
   border: 1px solid #6B5353;
 >>>>>>> Stashed changes
@@ -269,8 +340,13 @@
   width: 100%;
   padding: 14px 50px 14px 50px;
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   background: var(--bg-secondary);
   border: 1px solid white;
+=======
+  background: transparent;
+  border: none;
+>>>>>>> Stashed changes
 =======
   background: transparent;
   border: none;
@@ -287,8 +363,13 @@
 .chat-input:focus {
   outline: none;
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   border-color: white;
   box-shadow: var(--shadow-md);
+=======
+  border: none;
+  box-shadow: none;
+>>>>>>> Stashed changes
 =======
   border: none;
   box-shadow: none;

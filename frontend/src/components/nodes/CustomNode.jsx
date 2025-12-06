@@ -68,8 +68,11 @@ const NODE_CONFIG = {
   },
   asset: {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     color: '#5BC4B8', // muted turquoise
 =======
+=======
+>>>>>>> Stashed changes
     filledColor: '#D29AE7',
     ghostColor: 'rgba(210, 154, 231, 0.25)',
     icon: Package,
@@ -79,8 +82,11 @@ const NODE_CONFIG = {
   },
   amount: {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     color: '#E6C85C', // muted yellow
 =======
+=======
+>>>>>>> Stashed changes
     filledColor: '#DD70B4',
     ghostColor: 'rgba(221, 112, 180, 0.25)',
     icon: CreditCard,
@@ -90,8 +96,11 @@ const NODE_CONFIG = {
   },
   condition: {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     color: '#E69D6B', // muted orange
 =======
+=======
+>>>>>>> Stashed changes
     filledColor: '#81BDF7',
     ghostColor: 'rgba(129, 189, 247, 0.25)',
     icon: CheckCircle,
@@ -101,8 +110,11 @@ const NODE_CONFIG = {
   },
   trigger: {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     color: '#B08BC4', // muted purple
 =======
+=======
+>>>>>>> Stashed changes
     filledColor: '#F5E6FB',
     ghostColor: 'rgba(245, 230, 251, 0.25)',
     icon: Clock,
@@ -112,8 +124,11 @@ const NODE_CONFIG = {
   },
   timeout: {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     color: '#E85BA3', // muted hot pink
 =======
+=======
+>>>>>>> Stashed changes
     filledColor: '#FBD43B',
     ghostColor: 'rgba(251, 212, 59, 0.25)',
     icon: Clock,
@@ -123,8 +138,11 @@ const NODE_CONFIG = {
   },
   module: {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     color: '#5DB885', // muted green
 =======
+=======
+>>>>>>> Stashed changes
     filledColor: '#F7B2A8',
     ghostColor: 'rgba(247, 178, 168, 0.25)',
     icon: Package,
@@ -163,6 +181,9 @@ function CustomNode({ data, selected }) {
   return (
     <motion.div 
       className={`custom-node ${selected ? 'selected' : ''} ${filled ? 'filled' : 'ghost'} ${needsDarkText ? 'trigger-block' : ''}`}
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
       style={{
         width: config.width,

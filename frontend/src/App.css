@@ -28,6 +28,10 @@
   background: #FFF8EE;
   border-radius: 24px;
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+  border: none;
+>>>>>>> Stashed changes
 =======
   border: none;
 >>>>>>> Stashed changes
@@ -45,6 +49,10 @@
   background: #FFF8EE;
   border-radius: 24px;
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+  border: none;
+>>>>>>> Stashed changes
 =======
   border: none;
 >>>>>>> Stashed changes
@@ -58,7 +66,12 @@
   position: relative;
   overflow: hidden;
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   background: #2A4A3E;
+=======
+  background: #FFF8EE;
+  min-height: 0;
+>>>>>>> Stashed changes
 =======
   background: #FFF8EE;
   min-height: 0;
@@ -72,6 +85,10 @@
   background: #FFF8EE;
   border-radius: 24px;
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+  border: none;
+>>>>>>> Stashed changes
 =======
   border: none;
 >>>>>>> Stashed changes
@@ -139,7 +156,10 @@
   padding: 24px;
   background: transparent;
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
+=======
+>>>>>>> Stashed changes
   border-top: none;
 }
 

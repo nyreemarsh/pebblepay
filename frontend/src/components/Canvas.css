@@ -236,7 +236,11 @@
   height: 56px;
   padding: 0;
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   background: var(--bg-panel);
+=======
+  background: transparent;
+>>>>>>> Stashed changes
 =======
   background: transparent;
 >>>>>>> Stashed changes
@@ -252,8 +256,11 @@
 .canvas-bin.bin-active {
   background: rgba(255, 77, 77, 0.2);
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   box-shadow: var(--shadow-lg);
 =======
+=======
+>>>>>>> Stashed changes
   border: none;
   box-shadow: none;
 >>>>>>> Stashed changes

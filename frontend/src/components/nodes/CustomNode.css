@@ -11,6 +11,9 @@
   transition: all 0.3s ease;
   border: none;
   box-shadow: none;
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 }
 
@@ -145,6 +148,9 @@
   color: #6B5353;
 }
 
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 /* Handle styling */
 .custom-node .react-flow__handle {
