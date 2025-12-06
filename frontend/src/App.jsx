@@ -71,21 +71,6 @@ function App() {
 
   return (
     <div className="app">
-      <div className="app-header">
-        <div className="logo-container">
-          <img 
-            src="/assets/images/logos/i_am_big_pibble.png" 
-            alt="Pibble Logo" 
-            className="logo"
-            onError={(e) => {
-              // Fallback if image not found
-              e.target.style.display = 'none'
-            }}
-          />
-          <h1 className="app-title">PIBBLEPAY</h1>
-        </div>
-      </div>
-      
       <div className="app-content">
         {/* Left Sidebar - Block Palette */}
         <motion.div 
@@ -99,15 +84,24 @@ function App() {
 
         {/* Center - Canvas */}
         <div className="canvas-container">
-          <Canvas 
-            blocks={blocks} 
-            onBlocksChange={handleBlocksChange}
-            onNodeSelect={setSelectedNodeId}
-            selectedNodeId={selectedNodeId}
-            edges={edges}
-            onEdgesChange={setEdges}
-            onDeleteBlock={handleDeleteBlock}
-          />
+          <div className="canvas-area">
+            <Canvas 
+              blocks={blocks} 
+              onBlocksChange={handleBlocksChange}
+              onNodeSelect={setSelectedNodeId}
+              selectedNodeId={selectedNodeId}
+              edges={edges}
+              onEdgesChange={setEdges}
+              onDeleteBlock={handleDeleteBlock}
+            />
+          </div>
+          {/* Generate Button - Separate from canvas, underneath */}
+          <div className="generate-button-container-wrapper">
+            <GenerateButton 
+              onClick={handleGenerate}
+              disabled={blocks.length === 0}
+            />
+          </div>
         </div>
 
         {/* Node Editor (slides in when node is selected) */}
@@ -131,14 +125,6 @@ function App() {
             onMessage={handleChatMessage}
           />
         </motion.div>
-      </div>
-
-      {/* Bottom - Generate Button Container */}
-      <div className="generate-button-container-wrapper">
-        <GenerateButton 
-          onClick={handleGenerate}
-          disabled={blocks.length === 0}
-        />
       </div>
     </div>
   )

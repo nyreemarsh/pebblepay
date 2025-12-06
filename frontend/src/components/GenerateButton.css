@@ -10,31 +10,31 @@
   align-items: center;
   gap: 12px;
   padding: 18px 40px;
-  background: var(--neon-green);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 24px;
-  color: white;
+  background: var(--color-action-green);
+  border: none;
+  border-radius: 20px;
+  color: var(--bg-primary);
   font-size: 17px;
-  font-weight: 700;
-  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-family: 'Nunito', sans-serif;
   cursor: pointer;
   position: relative;
   overflow: hidden;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   transition: all 0.3s ease;
   letter-spacing: 0.5px;
+  box-shadow: var(--shadow-md);
 }
 
 .generate-button:hover:not(.disabled) {
   transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
 }
 
 .generate-button.disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  background: var(--bg-card);
-  border: 1px solid var(--border-primary);
+  background: var(--bg-secondary);
+  border: none;
   color: var(--text-muted);
   box-shadow: none;
 }

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Send, User } from 'lucide-react'
+import { Send, User, Mic } from 'lucide-react'
 import './Chatbot.css'
 
 function Chatbot({ messages, onMessage }) {
@@ -43,7 +43,7 @@ function Chatbot({ messages, onMessage }) {
             alt="Pibble" 
             className="pibble-avatar"
           />
-          <h2>Pibble Assistant</h2>
+          <h2>I am Pibble.</h2>
         </div>
       </div>
 
@@ -81,7 +81,6 @@ function Chatbot({ messages, onMessage }) {
                         key={idx}
                         className="suggestion-button"
                         onClick={() => handleSuggestion(suggestion)}
-                        whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -100,23 +99,35 @@ function Chatbot({ messages, onMessage }) {
       </div>
 
       <div className="chatbot-input">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-          placeholder="Ask about your contract..."
-          className="chat-input"
-        />
-        <motion.button
-          className="send-button"
-          onClick={handleSend}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          disabled={!input.trim()}
-        >
-          <Send size={18} />
-        </motion.button>
+        <div className="chat-input-wrapper">
+          <motion.button
+            className="mic-button"
+            onClick={() => {
+              // Voice input handler - to be implemented
+              console.log('Voice input clicked')
+            }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Mic size={18} />
+          </motion.button>
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+            placeholder="Ask Pibble for help..."
+            className="chat-input"
+          />
+          <motion.button
+            className="send-button"
+            onClick={handleSend}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            disabled={!input.trim()}
+          >
+            <Send size={18} />
+          </motion.button>
+        </div>
       </div>
     </div>
   )

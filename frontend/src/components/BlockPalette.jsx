@@ -13,47 +13,67 @@ import {
 import './BlockPalette.css'
 
 const blockTypes = [
-  { type: 'payment', label: 'Payment', icon: DollarSign, color: 'var(--neon-cyan)' },
-  { type: 'party', label: 'Party', icon: Users, color: 'var(--neon-pink)' },
-  { type: 'condition', label: 'Condition', icon: Shield, color: 'var(--neon-green)' },
-  { type: 'milestone', label: 'Milestone', icon: Calendar, color: 'var(--neon-purple)' },
-  { type: 'termination', label: 'Termination', icon: FileText, color: 'var(--neon-cyan)' },
-  { type: 'connection', label: 'Connection', icon: LinkIcon, color: 'var(--neon-pink)' },
-  { type: 'action', label: 'Action', icon: Zap, color: 'var(--neon-green)' },
+  { type: 'party', label: 'party', icon: Users, color: 'var(--neon-cyan)' },
+  { type: 'asset', label: 'asset', icon: DollarSign, color: 'var(--neon-pink)' },
+  { type: 'amount', label: 'amount', icon: DollarSign, color: 'var(--neon-green)' },
+  { type: 'condition', label: 'condition', icon: Shield, color: 'var(--neon-purple)' },
+  { type: 'trigger', label: 'trigger', icon: Zap, color: 'var(--neon-cyan)' },
+  { type: 'timeout', label: 'timeout', icon: Calendar, color: 'var(--neon-pink)' },
+  { type: 'module', label: 'module', icon: FileText, color: 'var(--neon-green)' },
 ]
 
 function BlockPalette({ onAddBlock }) {
   return (
     <div className="block-palette">
-      <div className="palette-header">
-        <h2>Block Library</h2>
-        <p className="palette-subtitle">Drag blocks to canvas</p>
-      </div>
-      
-      <div className="palette-blocks">
-        {blockTypes.map((block, index) => (
-          <motion.div
-            key={block.type}
-            className="palette-block"
-            draggable={true}
-            onDragStart={(e) => {
-              e.dataTransfer.setData('nodeType', block.type)
-              e.dataTransfer.effectAllowed = 'copy'
+      {/* Fixed Logo Section */}
+      <div className="logo-section">
+        <div className="logo-container">
+          <img 
+            src="/assets/images/logos/pibble_coin.png" 
+            alt="Pibble Coin" 
+            className="pibble-coin"
+            onError={(e) => {
+              // Fallback if image not found
+              e.target.style.display = 'none'
             }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            whileHover={{ scale: 1.05, y: -5 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => onAddBlock(block.type)}
-            style={{ '--block-color': block.color }}
-          >
-            <div className="block-icon-wrapper">
-              <block.icon size={24} />
-            </div>
-            <span className="block-label">{block.label}</span>
-          </motion.div>
-        ))}
+          />
+          <div className="brand-container">
+            <h1 className="app-title">pibblepay</h1>
+            <p className="app-caption">your smart contract creation playground</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Scrollable Block Garden Section */}
+      <div className="palette-scrollable">
+        <div className="palette-header">
+          <h2>Pibble's Block Garden</h2>
+        </div>
+        
+        <div className="palette-blocks">
+          {blockTypes.map((block, index) => (
+            <motion.div
+              key={block.type}
+              className="palette-block"
+              draggable={true}
+              onDragStart={(e) => {
+                e.dataTransfer.setData('application/reactflow', block.type)
+                e.dataTransfer.effectAllowed = 'move'
+              }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => onAddBlock(block.type)}
+              style={{ '--block-color': block.color }}
+            >
+              <div className="block-icon-wrapper">
+                <block.icon size={24} />
+              </div>
+              <span className="block-label">{block.label}</span>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </div>
   )

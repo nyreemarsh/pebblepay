@@ -1,23 +1,84 @@
 .block-palette {
-  padding: 24px;
+  display: flex;
+  flex-direction: column;
   height: 100%;
+  min-height: 0;
+  padding: 20px;
+  overflow: hidden;
+}
+
+.logo-section {
+  flex-shrink: 0;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+}
+
+.logo-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+}
+
+.pibble-coin {
+  height: 50px;
+  width: 50px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.brand-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.app-title {
+  font-size: 28px;
+  font-weight: 800;
+  font-family: 'Nunito', sans-serif;
+  color: #31A667;
+  letter-spacing: 0;
+  line-height: 1;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app-caption {
+  font-size: 10px;
+  color: white;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 400;
+  margin: 0;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.palette-scrollable {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .palette-header {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .palette-header h2 {
   font-size: 22px;
   font-weight: 700;
-  margin-bottom: 8px;
+  margin-bottom: 0;
   color: var(--text-primary);
   letter-spacing: 0.5px;
-}
-
-.palette-subtitle {
-  font-size: 12px;
-  color: var(--text-muted);
+  white-space: nowrap;
+  font-family: 'Nunito', sans-serif;
 }
 
 .palette-blocks {
@@ -31,15 +92,13 @@
   align-items: center;
   gap: 12px;
   padding: 18px 20px;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: 20px;
+  background: #2B3034;
+  border: none;
+  border-radius: 16px;
   cursor: grab;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 }
 
 .palette-block::before {
@@ -50,11 +109,12 @@
   width: 4px;
   height: 100%;
   background: var(--block-color);
+  border-radius: 16px 0 0 16px;
 }
 
 .palette-block:hover {
-  border-color: var(--border-hover);
   background: var(--bg-hover);
+  box-shadow: var(--shadow-sm);
 }
 
 .palette-block:active {
@@ -70,9 +130,7 @@
   background: rgba(29, 131, 141, 0.15);
   border-radius: 16px;
   color: var(--block-color);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: none;
 }
 
 .block-label {
@@ -80,5 +138,6 @@
   font-weight: 600;
   color: var(--text-primary);
   letter-spacing: 0.3px;
+  font-family: 'Nunito', sans-serif;
 }
 

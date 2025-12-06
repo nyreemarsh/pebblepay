@@ -1,6 +1,5 @@
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Sparkles } from 'lucide-react'
 import './GenerateButton.css'
 
 function GenerateButton({ onClick, disabled }) {
@@ -20,7 +19,6 @@ function GenerateButton({ onClick, disabled }) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >
-        <Sparkles size={20} />
         <span>Generate Smart Contract</span>
       </motion.button>
     </motion.div>
