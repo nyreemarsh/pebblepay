@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import BlockPalette from './components/BlockPalette'
 import Canvas from './components/Canvas'
@@ -20,18 +20,26 @@ function App() {
   const [sessionId, setSessionId] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const [contractData, setContractData] = useState(null)
-  const [completeness, setCompleteness] = useState(0)
-  const [changedBlocks, setChangedBlocks] = useState([])
-  const prevBlocksRef = useRef([])
+  
+// Resizable panel width for right sidebar
+const [rightWidth, setRightWidth] = useState(350)
+const [isResizingRight, setIsResizingRight] = useState(false)
+const resizeRightRef = useRef(null)
 
-  // Initialize with empty placeholder blocks
-  useEffect(() => {
-    const { blocks: initialBlocks, edges: initialEdges, completeness: initialCompleteness } = contractSpecToBlocks(null)
-    setBlocks(initialBlocks)
-    setEdges(initialEdges)
-    setCompleteness(initialCompleteness)
-    prevBlocksRef.current = initialBlocks
-  }, [])
+// Contract progress
+const [completeness, setCompleteness] = useState(0)
+const [changedBlocks, setChangedBlocks] = useState([])
+const prevBlocksRef = useRef([])
+
+// Initialize with empty placeholder blocks
+useEffect(() => {
+  const { blocks: initialBlocks, edges: initialEdges, completeness: initialCompleteness } =
+    contractSpecToBlocks(null)
+  setBlocks(initialBlocks)
+  setEdges(initialEdges)
+  setCompleteness(initialCompleteness)
+  prevBlocksRef.current = initialBlocks
+}, [])
 
   // Fetch opening message on mount
   useEffect(() => {
@@ -210,6 +218,42 @@ function App() {
     // This will be connected to backend later
   }
 
+  // Resize handlers for right sidebar
+  const handleMouseDownRight = useCallback((e) => {
+    e.preventDefault()
+    setIsResizingRight(true)
+  }, [])
+
+  const handleMouseMove = useCallback((e) => {
+    if (!isResizingRight) return
+
+    const containerWidth = window.innerWidth - 32 // Account for padding
+    const minWidth = 250
+    const maxRightWidth = containerWidth * 0.5
+
+    if (isResizingRight) {
+      const newWidth = containerWidth - e.clientX - 16 // Account for padding
+      if (newWidth >= minWidth && newWidth <= maxRightWidth) {
+        setRightWidth(newWidth)
+      }
+    }
+  }, [isResizingRight])
+
+  const handleMouseUp = useCallback(() => {
+    setIsResizingRight(false)
+  }, [])
+
+  useEffect(() => {
+    if (isResizingRight) {
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', handleMouseUp)
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove)
+        document.removeEventListener('mouseup', handleMouseUp)
+      }
+    }
+  }, [isResizingRight, handleMouseMove, handleMouseUp])
+
   // Handler to add messages directly (for explain contract)
   const handleAddMessage = (message) => {
     setChatMessages((prev) => [...prev, message])
@@ -363,9 +407,17 @@ function App() {
           />
         )}
 
+        {/* Right Resize Handle */}
+        <div
+          className="resize-handle resize-handle-right"
+          onMouseDown={handleMouseDownRight}
+          ref={resizeRightRef}
+        />
+
         {/* Right Sidebar - Chatbot */}
         <motion.div 
           className="sidebar-right"
+          style={{ width: `${rightWidth}px` }}
           initial={{ x: 300 }}
           animate={{ x: 0 }}
           transition={{ type: 'spring', stiffness: 100 }}
@@ -375,6 +427,7 @@ function App() {
             onMessage={handleChatMessage}
             sessionId={sessionId}
             onAddMessage={handleAddMessage}
+            isLoading={isLoading}
           />
         </motion.div>
       </div>

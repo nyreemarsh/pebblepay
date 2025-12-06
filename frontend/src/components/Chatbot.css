@@ -6,8 +6,8 @@
 }
 
 .chatbot-header {
-  padding: 24px;
-  border-bottom: none;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
   background: transparent;
 }
 
@@ -25,7 +25,7 @@
 
 .chatbot-title h2 {
   font-size: 20px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-primary);
   letter-spacing: 0.3px;
   margin: 0;
@@ -49,14 +49,44 @@
   object-fit: contain;
 }
 
+
 .chatbot-messages {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 20px;
+  padding: 12px 16px;
+  padding-right: 24px; /* Extra padding for scrollbar */
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
+}
+
+/* Custom scrollbar styling for chatbot messages */
+.chatbot-messages::-webkit-scrollbar {
+  width: 12px; /* Thicker scrollbar */
+}
+
+.chatbot-messages::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 8px 0; /* Padding around scrollbar */
+}
+
+.chatbot-messages::-webkit-scrollbar-thumb {
+  background: var(--color-light-green); /* Light green color */
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.chatbot-messages::-webkit-scrollbar-thumb:hover {
+  background: var(--color-green); /* Darker green on hover */
+  background-clip: padding-box;
+}
+
+/* Firefox scrollbar */
+.chatbot-messages {
+  scrollbar-width: thick;
+  scrollbar-color: var(--color-light-green) transparent;
 }
 
 .message {
@@ -66,7 +96,8 @@
 }
 
 .message.user {
-  flex-direction: row-reverse;
+  flex-direction: row;
+  justify-content: flex-end;
 }
 
 .message-icon {
@@ -95,6 +126,15 @@
 .message-content {
   flex: 1;
   max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.message.user .message-content {
+  flex: 0 1 auto;
+  max-width: 80%;
+  align-items: flex-end;
 }
 
 .message-text-wrapper {
@@ -148,10 +188,66 @@
   color: var(--text-primary);
 }
 
+.message.thinking .message-content p {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  opacity: 0.8;
+}
+
+.thinking-indicator {
+  padding: 12px 24px;
+  text-align: center;
+}
+
+.thinking-text {
+  display: inline;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.thinking-dots {
+  display: inline-block;
+  width: 24px;
+  text-align: left;
+}
+
+.thinking-dots .dot {
+  display: inline-block;
+  animation: thinkingDot 1.4s infinite;
+  animation-fill-mode: both;
+}
+
+.thinking-dots .dot:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.thinking-dots .dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.thinking-dots .dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes thinkingDot {
+  0%, 60%, 100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-4px);
+  }
+}
+
 .message.user .message-content p {
   background: var(--color-light-green);
   border: none;
   color: var(--text-primary);
+  text-align: right;
 }
 
 .suggestions {
@@ -159,6 +255,8 @@
   flex-direction: column;
   gap: 8px;
   margin-top: 12px;
+  align-items: flex-end;
+  width: 100%;
 }
 
 .suggestion-button {
@@ -169,10 +267,12 @@
   color: var(--text-primary);
   font-size: 14px;
   font-weight: 400;
-  text-align: left;
+  text-align: center;
   cursor: pointer;
   transition: all 0.3s ease;
   font-family: 'Nunito', sans-serif;
+  max-width: 80%;
+  box-sizing: border-box;
 }
 
 .suggestion-button:hover {
@@ -184,7 +284,7 @@
 
 .chatbot-input {
   padding: 24px;
-  border-top: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
   background: transparent;
 }
 
@@ -216,6 +316,10 @@
 .mic-button:hover {
   background: var(--bg-card);
   color: var(--text-primary);
+}
+
+.mic-button:active {
+  transform: scale(0.95);
 }
 
 .chat-input {
@@ -262,7 +366,7 @@
 
 .send-button:hover:not(:disabled) {
   color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.05);
+  background: transparent;
 }
 
 .send-button:disabled {
