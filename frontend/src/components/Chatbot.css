@@ -270,3 +270,57 @@
   cursor: not-allowed;
 }
 
+/* Contract Action Buttons */
+.contract-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.action-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Nunito', sans-serif;
+  border: none;
+}
+
+.action-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.download-btn {
+  background: linear-gradient(135deg, #1D838D 0%, #16a085 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(29, 131, 141, 0.3);
+}
+
+.download-btn:hover:not(:disabled) {
+  box-shadow: 0 6px 20px rgba(29, 131, 141, 0.5);
+  transform: translateY(-2px);
+}
+
+.explain-btn {
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(44, 62, 80, 0.3);
+}
+
+.explain-btn:hover:not(:disabled) {
+  box-shadow: 0 6px 20px rgba(44, 62, 80, 0.5);
+  transform: translateY(-2px);
+}
+
+/* Message content with markdown-like formatting */
+.message-content p {
+  white-space: pre-wrap;
+}
+

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import BlockPalette from './components/BlockPalette'
 import Canvas from './components/Canvas'
@@ -8,23 +8,58 @@ import './App.css'
 
 import NodeEditor from './components/NodeEditor'
 
+// API base URL - adjust if your backend runs on a different port
+const API_BASE_URL = 'http://localhost:8000'
+
 function App() {
   const [blocks, setBlocks] = useState([])
   const [edges, setEdges] = useState([])
   const [selectedNodeId, setSelectedNodeId] = useState(null)
-  const [chatMessages, setChatMessages] = useState([
-    {
-      id: 1,
-      type: 'suggestion',
-      text: "Hi! I am Pibble. Let's create your smart contract! What type of contract are you looking to build?",
-      suggestions: [
-        "Freelance payment contract",
-        "Rental agreement",
-        "Subscription service",
-        "Service agreement"
-      ]
+  const [chatMessages, setChatMessages] = useState([])
+  const [sessionId, setSessionId] = useState(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [contractData, setContractData] = useState(null)
+
+  // Fetch opening message on mount
+  useEffect(() => {
+    const fetchOpeningMessage = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/opening-message`)
+        const data = await response.json()
+        
+        setChatMessages([
+          {
+            id: Date.now(),
+            type: 'suggestion',
+            text: data.message,
+            suggestions: [
+              "I'm designing a logo for a client",
+              "I'm doing freelance writing work",
+              "I'm providing consulting services",
+              "I'm building a website"
+            ]
+          }
+        ])
+      } catch (error) {
+        console.error('Error fetching opening message:', error)
+        // Fallback message
+        setChatMessages([
+          {
+            id: Date.now(),
+            type: 'suggestion',
+            text: "Hi there! 👋 I'm Pibble, your friendly contract assistant.\n\nHere's how I work: I'll ask you a few simple questions about your project, and then I'll create a comprehensive contract that protects both you and your client. I'll cover everything from payment terms to what happens if things don't go as planned.\n\nLet's get started! Tell me a bit about what you're working on - who's your client and what will you be delivering?",            suggestions: [
+              "I'm designing a logo for a client",
+              "I'm doing freelance writing work",
+              "I'm providing consulting services",
+              "I'm building a website"
+            ]
+          }
+        ])
+      }
     }
-  ])
+    
+    fetchOpeningMessage()
+  }, [])
 
   const handleAddBlock = (blockType) => {
     const newBlock = {
@@ -59,14 +94,80 @@ function App() {
     setBlocks(updatedBlocks)
   }
 
-  const handleChatMessage = (message) => {
-    setChatMessages([...chatMessages, message])
+  const handleChatMessage = async (message) => {
+    // Add user message to chat immediately
+    const userMessage = {
+      ...message,
+      type: 'user',
+    }
+    setChatMessages((prev) => [...prev, userMessage])
+    setIsLoading(true)
+
+    try {
+      // Call the backend API
+      const response = await fetch(`${API_BASE_URL}/api/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: message.text,
+          session_id: sessionId,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`)
+      }
+
+      const data = await response.json()
+
+      // Store session ID if this is a new session
+      if (!sessionId && data.session_id) {
+        setSessionId(data.session_id)
+      }
+
+      // Store contract data if available
+      if (data.contract_spec || data.contract_text) {
+        setContractData({
+          spec: data.contract_spec,
+          text: data.contract_text,
+          summary: data.summary,
+        })
+      }
+
+      // Add assistant response to chat
+      const assistantMessage = {
+        id: Date.now(),
+        type: 'suggestion',
+        text: data.response,
+        suggestions: data.suggestions || undefined,
+        contractReady: data.contract_ready || false,
+      }
+      setChatMessages((prev) => [...prev, assistantMessage])
+    } catch (error) {
+      console.error('Error sending message:', error)
+      // Show error message to user
+      const errorMessage = {
+        id: Date.now(),
+        type: 'suggestion',
+        text: "Sorry, I encountered an error. Please try again or check if the backend server is running.",
+      }
+      setChatMessages((prev) => [...prev, errorMessage])
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleGenerate = () => {
     console.log('Generating smart contract with blocks:', blocks)
     console.log('Edges:', edges)
     // This will be connected to backend later
+  }
+
+  // Handler to add messages directly (for explain contract)
+  const handleAddMessage = (message) => {
+    setChatMessages((prev) => [...prev, message])
   }
 
   return (
@@ -123,6 +224,8 @@ function App() {
           <Chatbot 
             messages={chatMessages}
             onMessage={handleChatMessage}
+            sessionId={sessionId}
+            onAddMessage={handleAddMessage}
           />
         </motion.div>
       </div>
