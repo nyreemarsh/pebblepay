@@ -10,6 +10,7 @@ import {
   Link as LinkIcon,
   Zap
 } from 'lucide-react'
+import ContractHistory from './ContractHistory'
 import './BlockPalette.css'
 
 const blockTypes = [
@@ -22,7 +23,7 @@ const blockTypes = [
   { type: 'module', label: 'module', icon: FileText, color: '#5DB885' }, // muted green
 ]
 
-function BlockPalette({ onAddBlock }) {
+function BlockPalette({ onAddBlock, onLoadContract, onNewContract, currentSessionId }) {
   return (
     <div className="block-palette">
       {/* Fixed Logo Section */}
@@ -42,6 +43,13 @@ function BlockPalette({ onAddBlock }) {
             <p className="app-caption">your smart contract creation playground</p>
           </div>
         </div>
+        
+        {/* Contract History Buttons - Below logo */}
+        <ContractHistory 
+          onLoadContract={onLoadContract}
+          onNewContract={onNewContract}
+          currentSessionId={currentSessionId}
+        />
       </div>
 
       {/* Scrollable Block Garden Section */}

@@ -4,6 +4,7 @@ Integrates the contract agent system with a REST API.
 """
 import os
 import uuid
+import time
 from typing import Dict, Any, Optional
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,22 +13,29 @@ from pydantic import BaseModel
 import asyncio
 import io
 
-from app.graph_workflow import create_contract_graph_agent, get_opening_message
-from app.pdf_generator import generate_contract_pdf
-from app.nodes.explain_contract_node import explain_contract_node
-
-# ——— TTS Support (from main branch)
-from tts import router as tts_router
 from dotenv import load_dotenv
 from pathlib import Path
 
-# Load environment variables
+# Load environment variables FIRST, before importing modules that need them
 root_dir = Path(__file__).parent.parent
 load_dotenv(dotenv_path=root_dir / ".env")
 load_dotenv(dotenv_path=Path(__file__).parent / ".env", override=False)
 
+from app.graph_workflow import create_contract_graph_agent, get_opening_message
+from app.pdf_generator import generate_contract_pdf
+from app.nodes.explain_contract_node import explain_contract_node
+from app.database import init_db, save_session, get_session, list_sessions, delete_session
+
+# ——— TTS Support (from main branch)
+from tts import router as tts_router
+
 # Initialize FastAPI app
 app = FastAPI(title="PebblePay API", version="1.0.0")
+
+# Initialize database on startup
+@app.on_event("startup")
+async def startup_event():
+    init_db()
 
 # Configure CORS for frontend
 app.add_middleware(
@@ -80,19 +88,57 @@ async def health():
     return {"status": "healthy"}
 
 
+@app.get("/api/opening-message")
+async def get_opening_message_endpoint():
+    """Get the opening message for new conversations."""
+    return {"message": get_opening_message()}
+
+
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat(message: ChatMessage):
 
     try:
         session_id = message.session_id
+        existing_chat_history = []
 
-        # Create new session if needed
+        # Create new session or load from database/memory
         if not session_id or session_id not in agent_sessions:
-            agent = create_contract_graph_agent()
-            session_id = str(uuid.uuid4())
-            agent_sessions[session_id] = agent
+            # Check database for existing session
+            db_session = get_session(session_id) if session_id else None
+            
+            if db_session and db_session.get("contract_spec"):
+                # Restore session from database
+                agent = create_contract_graph_agent()
+                agent.state["contract_spec"] = db_session["contract_spec"]
+                if db_session.get("contract_text"):
+                    agent.state["contract_text"] = db_session["contract_text"]
+                agent_sessions[session_id] = agent
+                # Load existing chat history
+                existing_chat_history = db_session.get("chat_history", [])
+            else:
+                # Create new session
+                agent = create_contract_graph_agent()
+                session_id = str(uuid.uuid4())
+                agent_sessions[session_id] = agent
+                # Add opening message to history
+                opening_msg = get_opening_message()
+                existing_chat_history = [{
+                    "id": 1,
+                    "type": "suggestion",
+                    "text": opening_msg,
+                    "suggestions": [
+                        "I'm designing a logo for a client",
+                        "I'm doing freelance writing work",
+                        "I'm providing consulting services",
+                        "I'm building a website"
+                    ]
+                }]
         else:
             agent = agent_sessions[session_id]
+            # Load existing chat history from database
+            db_session = get_session(session_id)
+            if db_session:
+                existing_chat_history = db_session.get("chat_history", [])
 
         # Run agent step
         state = await agent.run(message.message)
@@ -109,6 +155,33 @@ async def chat(message: ChatMessage):
             suggestions = get_field_suggestions(current_field) if current_field else None
 
         contract_ready = bool(contract_text)
+
+        # Build updated chat history from database
+        timestamp = int(time.time() * 1000)
+        
+        # Add the user message
+        existing_chat_history.append({
+            "id": timestamp,
+            "type": "user",
+            "text": message.message
+        })
+        
+        # Add the assistant response
+        existing_chat_history.append({
+            "id": timestamp + 1,
+            "type": "suggestion",
+            "text": assistant_message or "Processing...",
+            "suggestions": suggestions,
+            "contractReady": contract_ready
+        })
+
+        # Save session to database with updated chat history
+        save_session(
+            session_id=session_id,
+            contract_spec=contract_spec,
+            contract_text=contract_text,
+            chat_history=existing_chat_history,
+        )
 
         return ChatResponse(
             response=assistant_message or "Processing...",
@@ -128,15 +201,18 @@ async def chat(message: ChatMessage):
 
 @app.get("/api/session/{session_id}/download-contract")
 async def download_contract_pdf(session_id: str):
-
-    if session_id not in agent_sessions:
-        raise HTTPException(status_code=404, detail="Session not found")
-
-    agent = agent_sessions[session_id]
-    state = agent.state
-
-    contract_text = state.get("contract_text")
-    contract_spec = state.get("contract_spec", {})
+    # Try memory first, then database
+    if session_id in agent_sessions:
+        agent = agent_sessions[session_id]
+        contract_text = agent.state.get("contract_text")
+        contract_spec = agent.state.get("contract_spec", {})
+    else:
+        # Try loading from database
+        db_session = get_session(session_id)
+        if not db_session:
+            raise HTTPException(status_code=404, detail="Session not found")
+        contract_text = db_session.get("contract_text")
+        contract_spec = db_session.get("contract_spec", {})
 
     if not contract_text:
         raise HTTPException(status_code=400, detail="No contract available")
@@ -161,12 +237,19 @@ async def download_contract_pdf(session_id: str):
 
 @app.get("/api/session/{session_id}/explain-contract")
 async def explain_contract(session_id: str):
-
-    if session_id not in agent_sessions:
-        raise HTTPException(status_code=404, detail="Session not found")
-
-    agent = agent_sessions[session_id]
-    state = agent.state
+    # Try memory first, then database
+    if session_id in agent_sessions:
+        agent = agent_sessions[session_id]
+        state = agent.state
+    else:
+        # Try loading from database
+        db_session = get_session(session_id)
+        if not db_session:
+            raise HTTPException(status_code=404, detail="Session not found")
+        state = {
+            "contract_text": db_session.get("contract_text"),
+            "contract_spec": db_session.get("contract_spec", {}),
+        }
 
     contract_text = state.get("contract_text")
     if not contract_text:
@@ -178,9 +261,43 @@ async def explain_contract(session_id: str):
     result = await explain_contract_node(state)
     summary = result.get("summary", "")
 
-    agent.state["summary"] = summary
+    # Save summary if we have the agent in memory
+    if session_id in agent_sessions:
+        agent_sessions[session_id].state["summary"] = summary
 
     return {"explanation": summary}
+
+
+# ——— Contract Database Endpoints ———
+
+@app.get("/api/contracts")
+async def list_contracts(limit: int = 50):
+    """List all saved contracts."""
+    contracts = list_sessions(limit=limit)
+    return {"contracts": contracts}
+
+
+@app.get("/api/contracts/{session_id}")
+async def get_contract(session_id: str):
+    """Get a specific contract by session ID."""
+    session = get_session(session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail="Contract not found")
+    return session
+
+
+@app.delete("/api/contracts/{session_id}")
+async def delete_contract(session_id: str):
+    """Delete a contract by session ID."""
+    # Also remove from memory if present
+    if session_id in agent_sessions:
+        del agent_sessions[session_id]
+    
+    deleted = delete_session(session_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Contract not found")
+    
+    return {"status": "deleted", "session_id": session_id}
 
 
 def get_field_suggestions(field: str) -> list:

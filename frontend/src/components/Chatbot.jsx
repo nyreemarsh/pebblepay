@@ -165,7 +165,7 @@ function Chatbot({ messages, onMessage, sessionId, onAddMessage }) {
         onAddMessage({
           id: Date.now(),
           type: 'suggestion',
-          text: `📋 **Here's your contract explained:**\n\n${data.explanation}`,
+          text: `📋 Here's your contract explained:\n\n${data.explanation}`,
         })
       }
     } catch (error) {
