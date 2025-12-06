@@ -11,6 +11,11 @@
   flex-shrink: 0;
   margin-bottom: 20px;
   padding-bottom: 20px;
+  margin-left: -20px;
+  margin-right: -20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .logo-container {
@@ -30,7 +35,7 @@
 .brand-container {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 8px;
   flex: 1;
   min-width: 0;
 }
@@ -41,10 +46,10 @@
   font-family: 'Nunito', sans-serif;
   color: #31A667;
   letter-spacing: 0;
-  line-height: 1;
+  line-height: 1.2;
   margin: 0;
   white-space: nowrap;
-  overflow: hidden;
+  overflow: visible;
   text-overflow: ellipsis;
 }
 
@@ -56,7 +61,8 @@
   margin: 0;
   letter-spacing: 0.2px;
   white-space: nowrap;
-  overflow: hidden;
+  overflow: visible;
+  line-height: 1.3;
   text-overflow: ellipsis;
 }
 

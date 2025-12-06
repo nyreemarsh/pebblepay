@@ -22,7 +22,7 @@
 }
 
 .sidebar-left {
-  width: 360px;
+  width: 300px;
   height: calc(100vh - 32px);
   min-height: 0;
   background: #2A4A3E;
@@ -54,6 +54,8 @@
 
 .sidebar-right {
   width: 350px;
+  min-width: 250px;
+  max-width: 50vw;
   height: calc(100vh - 32px);
   min-height: 0;
   background: #2A4A3E;
@@ -63,7 +65,9 @@
   z-index: 10;
   flex-shrink: 0;
   overflow: hidden;
+  transition: width 0.1s ease;
 }
+
 
 /* Generate Button Container */
 .generate-button-container-wrapper {
@@ -72,16 +76,55 @@
   align-items: center;
   padding: 24px;
   background: transparent;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Resize Handle */
+.resize-handle {
+  width: 4px;
+  height: calc(100vh - 32px);
+  background: transparent;
+  cursor: col-resize;
+  position: relative;
+  z-index: 20;
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+}
+
+.resize-handle:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.resize-handle-right {
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+.resize-handle::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 1px;
+}
+
+.resize-handle:hover::after {
+  background: rgba(255, 255, 255, 0.3);
+  width: 3px;
 }
 
 /* Responsive adjustments */
 @media (max-width: 1200px) {
   .sidebar-left {
-    width: 300px;
+    min-width: 200px;
   }
   
   .sidebar-right {
-    width: 300px;
+    min-width: 200px;
   }
 }
 
