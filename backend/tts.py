@@ -5,6 +5,14 @@ import requests
 from fastapi import APIRouter
 from fastapi.responses import Response
 from pydantic import BaseModel
+from dotenv import load_dotenv
+from pathlib import Path
+
+# Load environment variables
+# Try loading from backend/.env first, then parent .env
+backend_dir = Path(__file__).parent
+load_dotenv(dotenv_path=backend_dir / ".env")
+load_dotenv(dotenv_path=backend_dir.parent / ".env", override=False)
 
 router = APIRouter()
 
