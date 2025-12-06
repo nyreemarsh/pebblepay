@@ -318,7 +318,7 @@ function CanvasFlow({
           }}
           transition={{ duration: 0.3 }}
         >
-          <Trash2 size={24} />
+          <Trash2 size={20} />
         </motion.div>
       </motion.div>
     </div>

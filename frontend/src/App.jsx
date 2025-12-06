@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import BlockPalette from './components/BlockPalette'
+import ContractHistorySidebar from './components/ContractHistorySidebar'
+import CompactBlockPalette from './components/CompactBlockPalette'
 import Canvas from './components/Canvas'
 import Chatbot from './components/Chatbot'
 import GenerateButton from './components/GenerateButton'
@@ -385,15 +386,14 @@ useEffect(() => {
   return (
     <div className="app">
       <div className="app-content">
-        {/* Left Sidebar - Block Palette */}
+        {/* Left Sidebar - Contract History */}
         <motion.div 
           className="sidebar-left"
           initial={{ x: -300 }}
           animate={{ x: 0 }}
           transition={{ type: 'spring', stiffness: 100 }}
         >
-          <BlockPalette 
-            onAddBlock={handleAddBlock}
+          <ContractHistorySidebar 
             onLoadContract={handleLoadContract}
             onNewContract={handleNewContract}
             currentSessionId={sessionId}
@@ -438,6 +438,8 @@ useEffect(() => {
               onDeleteBlock={handleDeleteBlock}
             />
           </div>
+          {/* Compact Block Palette - At bottom of canvas */}
+          <CompactBlockPalette onAddBlock={handleAddBlock} />
           {/* Generate Button - Separate from canvas, underneath */}
           <div className="generate-button-container-wrapper">
             <GenerateButton 
