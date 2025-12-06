@@ -1,3 +1,14 @@
-# --- SpoonOS & Agents ---
-# Install spoon-core (SpoonOS) in editable mode from local directory
--e ../spoon-core
+# Core Backend Dependencies
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+python-dotenv>=1.0.0
+requests>=2.31.0
+pydantic>=2.0.0
+
+# SpoonOS (Spoon Core) - Install from GitHub
+# Install directly from the official GitHub repository
+git+https://github.com/XSpoonAi/spoon-core.git#egg=spoon-core
+
+# Alternative: If you have spoon-core locally (for development)
+# Uncomment the line below and adjust the path as needed:
+# -e ../spoon-core

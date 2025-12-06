@@ -37,7 +37,8 @@ function CanvasFlow({
     position: block.position,
     data: {
       ...block.data,
-      type: block.type,
+      type: block.type, // Ensure type is passed to the node
+      label: block.data?.label || block.type,
     },
     selected: selectedNodeId === block.id,
   }))
@@ -49,10 +50,10 @@ function CanvasFlow({
     target: edge.to,
     sourceHandle: edge.fromSide || 'right',
     targetHandle: edge.toSide || 'left',
-    style: { stroke: '#1D838D', strokeWidth: 2 },
+    style: { stroke: '#FFFFFF', strokeWidth: 2 },
     markerEnd: {
       type: 'arrowclosed',
-      color: '#1D838D',
+      color: '#FFFFFF',
     },
   }))
 
@@ -83,10 +84,10 @@ function CanvasFlow({
       target: edge.to,
       sourceHandle: edge.fromSide || 'right',
       targetHandle: edge.toSide || 'left',
-      style: { stroke: '#1D838D', strokeWidth: 2 },
+      style: { stroke: '#FFFFFF', strokeWidth: 2 },
       markerEnd: {
         type: 'arrowclosed',
-        color: '#1D838D',
+        color: '#FFFFFF',
       },
     }))
     setEdges(newEdges)
@@ -146,18 +147,17 @@ function CanvasFlow({
         y: event.clientY - reactFlowBounds.top,
       })
 
-    const newNode = {
+    const newBlock = {
       id: `${nodeType}-${Date.now()}`,
-        type: 'custom', // React Flow node type
-        position,
+      type: nodeType, // Block type (party, asset, etc.)
+      position,
       data: {
-        label: nodeType.charAt(0).toUpperCase() + nodeType.slice(1),
+        label: nodeType,
         content: '',
-          type: nodeType, // Block type stored in data
       },
     }
 
-    onBlocksChange([...blocks, newNode])
+    onBlocksChange([...blocks, newBlock])
     },
     [reactFlowInstance, blocks, onBlocksChange]
   )
@@ -166,7 +166,7 @@ function CanvasFlow({
   const onNodesChangeInternal = useCallback(
     (changes) => {
       onNodesChange(changes)
-      
+
       // Update block positions when nodes are dragged
       changes.forEach((change) => {
         if (change.type === 'position' && change.position) {
@@ -202,10 +202,10 @@ function CanvasFlow({
         target: params.target,
         sourceHandle: params.sourceHandle || 'right',
         targetHandle: params.targetHandle || 'left',
-        style: { stroke: '#1D838D', strokeWidth: 2 },
+        style: { stroke: '#FFFFFF', strokeWidth: 2 },
         markerEnd: {
           type: 'arrowclosed',
-          color: '#1D838D',
+          color: '#FFFFFF',
         },
       }
       edgesRef.current = [...edgesRef.current, rfEdge]
@@ -218,7 +218,7 @@ function CanvasFlow({
     (event, node) => {
       if (onNodeSelect) {
         onNodeSelect(node.id === selectedNodeId ? null : node.id)
-      }
+    }
     },
     [selectedNodeId, onNodeSelect]
   )
@@ -259,6 +259,15 @@ function CanvasFlow({
 
   return (
     <div className="canvas-wrapper" ref={reactFlowWrapper}>
+      {/* Bokeh effect background */}
+      <div className="bokeh-container">
+        <div className="bokeh-circle bokeh-1"></div>
+        <div className="bokeh-circle bokeh-2"></div>
+        <div className="bokeh-circle bokeh-3"></div>
+        <div className="bokeh-circle bokeh-4"></div>
+        <div className="bokeh-circle bokeh-5"></div>
+        <div className="bokeh-circle bokeh-6"></div>
+      </div>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -274,10 +283,10 @@ function CanvasFlow({
         onDragOver={onDragOver}
         nodeTypes={nodeTypes}
         fitView
-        attributionPosition="bottom-left"
-        style={{ background: '#2B3034' }}
+        proOptions={{ hideAttribution: true }}
+        style={{ background: 'transparent' }}
       >
-        <Background color="#1A1F25" gap={16} />
+        <Background color="transparent" gap={16} />
       </ReactFlow>
 
       {blocks.length === 0 && (

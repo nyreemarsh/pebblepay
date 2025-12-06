@@ -20,12 +20,12 @@
   --neon-purple: #B7D0E3;
   --neon-lilac: #B7D0E3;
   
-  /* Background Colors */
-  --bg-primary: #252A2E;
-  --bg-secondary: #2B3034;
-  --bg-panel: #2B3034;
-  --bg-card: rgba(43, 48, 52, 0.8);
-  --bg-hover: rgba(49, 166, 103, 0.1);
+  /* Background Colors - Dark Muted Leafy Green */
+  --bg-primary: #1A3A2E;
+  --bg-secondary: #2A4A3E;
+  --bg-panel: #2A4A3E;
+  --bg-card: rgba(42, 74, 62, 0.8);
+  --bg-hover: rgba(255, 107, 157, 0.15);
   
   /* Text Colors */
   --text-primary: #ffffff;
@@ -40,7 +40,7 @@
 
 body {
   font-family: 'Nunito', sans-serif;
-  background: #252A2E;
+  background: #1A3A2E;
   color: var(--text-primary);
   overflow: hidden;
   height: 100vh;

@@ -21,8 +21,8 @@
 }
 
 .pibble-coin {
-  height: 50px;
-  width: 50px;
+  height: 70px;
+  width: 70px;
   object-fit: contain;
   flex-shrink: 0;
 }
@@ -36,7 +36,7 @@
 }
 
 .app-title {
-  font-size: 28px;
+  font-size: 36px;
   font-weight: 800;
   font-family: 'Nunito', sans-serif;
   color: #31A667;
@@ -84,15 +84,15 @@
 .palette-blocks {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .palette-block {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 18px 20px;
-  background: #2B3034;
+  padding: 16px 20px;
+  background: #2A4A3E;
   border: none;
   border-radius: 16px;
   cursor: grab;
@@ -112,9 +112,23 @@
   border-radius: 16px 0 0 16px;
 }
 
-.palette-block:hover {
-  background: var(--bg-hover);
-  box-shadow: var(--shadow-sm);
+.palette-block::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--block-color);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  border-radius: 16px;
+  z-index: 0;
+}
+
+.palette-block:hover::after {
+  opacity: 0.15;
 }
 
 .palette-block:active {
@@ -127,10 +141,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(29, 131, 141, 0.15);
+  background: rgba(42, 74, 62, 0.3);
   border-radius: 16px;
   color: var(--block-color);
   border: none;
+  position: relative;
+  z-index: 1;
 }
 
 .block-label {
@@ -139,5 +155,7 @@
   color: var(--text-primary);
   letter-spacing: 0.3px;
   font-family: 'Nunito', sans-serif;
+  position: relative;
+  z-index: 1;
 }
 
