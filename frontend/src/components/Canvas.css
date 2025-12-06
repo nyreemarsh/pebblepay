@@ -231,13 +231,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 56px;
-  height: 56px;
+  width: 48px;
+  height: 48px;
   padding: 0;
   background: var(--bg-panel);
-  border: none;
+  border: 1px solid rgba(168, 214, 168, 0.3);
   border-radius: 16px;
-  box-shadow: var(--shadow-md);
+  box-shadow: none;
   z-index: 100;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -246,7 +246,8 @@
 
 .canvas-bin.bin-active {
   background: rgba(255, 77, 77, 0.2);
-  box-shadow: var(--shadow-lg);
+  border-color: rgba(255, 77, 77, 0.5);
+  box-shadow: none;
 }
 
 .bin-icon {
