@@ -111,7 +111,7 @@ You'll need **two terminal windows** running simultaneously:
 
 ```bash
 cd backend
-uvicorn main:app --host 0.0.0.0 --port 800
+uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
 The backend API will start at `http://localhost:8000`
