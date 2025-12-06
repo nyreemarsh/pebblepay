@@ -41,9 +41,11 @@
 }
 
 .canvas-wrapper .react-flow__minimap {
-  background: var(--bg-secondary);
-  border: none;
-  box-shadow: var(--shadow-md);
+  display: none;
+}
+
+.canvas-wrapper .react-flow__attribution {
+  display: none !important;
 }
 
 /* Bin/Trash Button */

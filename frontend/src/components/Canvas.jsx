@@ -166,7 +166,7 @@ function CanvasFlow({
   const onNodesChangeInternal = useCallback(
     (changes) => {
       onNodesChange(changes)
-      
+
       // Update block positions when nodes are dragged
       changes.forEach((change) => {
         if (change.type === 'position' && change.position) {
@@ -218,7 +218,7 @@ function CanvasFlow({
     (event, node) => {
       if (onNodeSelect) {
         onNodeSelect(node.id === selectedNodeId ? null : node.id)
-      }
+    }
     },
     [selectedNodeId, onNodeSelect]
   )
@@ -274,7 +274,7 @@ function CanvasFlow({
         onDragOver={onDragOver}
         nodeTypes={nodeTypes}
         fitView
-        attributionPosition="bottom-left"
+        proOptions={{ hideAttribution: true }}
         style={{ background: '#2B3034' }}
       >
         <Background color="#1A1F25" gap={16} />
