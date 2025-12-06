@@ -13,23 +13,32 @@ SYSTEM_PROMPT = """You are an expert contract writer creating professional freel
 
 Generate a COMPLETE, ROBUST contract that includes:
 
-1. **PARTIES** - Full names and contact details (no placeholders)
-2. **SCOPE OF WORK** - Clear deliverables with formats and acceptance criteria
-3. **PAYMENT TERMS** - Amount, schedule, late payment penalties
-4. **TIMELINE** - Deadlines and milestones
-5. **REVISIONS** - How many included, cost for extras
-6. **QUALITY STANDARDS** - What constitutes acceptable work
-7. **FAILURE SCENARIOS** (CRITICAL):
+1. PARTIES - Full names and contact details (no placeholders)
+2. SCOPE OF WORK - Clear deliverables with formats and acceptance criteria
+3. PAYMENT TERMS - Amount, schedule, late payment penalties
+4. TIMELINE - Deadlines and milestones
+5. REVISIONS - How many included, cost for extras
+6. QUALITY STANDARDS - What constitutes acceptable work
+7. FAILURE SCENARIOS (CRITICAL):
    - Late delivery: What happens, any penalties
    - Non-delivery: Refund policy
    - Client rejection: Process for handling disputes
    - Cancellation by either party: Terms and refunds
-8. **DISPUTE RESOLUTION** - Step-by-step process
-9. **LIABILITY** - Limitations and exclusions
-10. **INTELLECTUAL PROPERTY** - Who owns the work and when
-11. **CONFIDENTIALITY** - If applicable
-12. **TERMINATION** - How either party can end the contract
-13. **GENERAL PROVISIONS** - Force majeure, amendments, entire agreement
+8. DISPUTE RESOLUTION - Step-by-step process
+9. LIABILITY - Limitations and exclusions
+10. INTELLECTUAL PROPERTY - Who owns the work and when
+11. CONFIDENTIALITY - If applicable
+12. TERMINATION - How either party can end the contract
+13. GENERAL PROVISIONS - Force majeure, amendments, entire agreement
+
+CRITICAL FORMATTING RULES:
+- Output PLAIN TEXT ONLY - NO markdown formatting whatsoever
+- Do NOT use asterisks (*) for bold or bullet points
+- Do NOT use underscores (_) for emphasis
+- Do NOT use hash symbols (#) for headings
+- Use regular dashes (-) for bullet points, not asterisks
+- Section headings should be numbered: "1. PARTIES" not "**1. PARTIES**"
+- Just write clean, plain text
 
 IMPORTANT:
 - Use the ACTUAL names provided, not placeholders like [Name]
@@ -39,8 +48,8 @@ IMPORTANT:
 - Make failure scenarios fair to both parties
 - Today's date is: {today}
 
-Output the complete contract as plain text with clear section headings.
-Do NOT use markdown code blocks or placeholder brackets [like this]."""
+Output the complete contract as PLAIN TEXT with numbered section headings.
+Do NOT use markdown, asterisks, underscores, or any special formatting."""
 
 
 async def generate_contract_node(state: Dict[str, Any]) -> Dict[str, Any]:
@@ -226,6 +235,8 @@ def format_spec_for_generation(spec: Dict[str, Any], today: str) -> str:
 
 def clean_contract_text(text: str) -> str:
     """Clean up any markdown or formatting artifacts from the contract text."""
+    import re
+    
     # Remove markdown code blocks
     if text.startswith("```"):
         lines = text.split("\n")
@@ -237,6 +248,29 @@ def clean_contract_text(text: str) -> str:
     
     # Remove any remaining triple backticks
     text = text.replace("```", "")
+    
+    # Remove bold markdown (**text** or __text__)
+    text = re.sub(r'\*\*([^*]+)\*\*', r'\1', text)
+    text = re.sub(r'__([^_]+)__', r'\1', text)
+    
+    # Remove italic markdown (*text* or _text_) - be careful not to remove bullet dashes
+    text = re.sub(r'(?<!\*)\*([^*]+)\*(?!\*)', r'\1', text)
+    text = re.sub(r'(?<!_)_([^_]+)_(?!_)', r'\1', text)
+    
+    # Remove markdown headers (# ## ### etc)
+    text = re.sub(r'^#{1,6}\s*', '', text, flags=re.MULTILINE)
+    
+    # Replace asterisk bullet points with dashes
+    text = re.sub(r'^\s*\*\s+', '- ', text, flags=re.MULTILINE)
+    
+    # Clean up any remaining stray asterisks at start of lines
+    text = re.sub(r'^\s*\*+\s*', '', text, flags=re.MULTILINE)
+    
+    # Remove [text](url) markdown links, keep just the text
+    text = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', text)
+    
+    # Clean up multiple consecutive blank lines
+    text = re.sub(r'\n{3,}', '\n\n', text)
     
     return text.strip()
 
