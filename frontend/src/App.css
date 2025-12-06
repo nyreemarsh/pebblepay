@@ -9,7 +9,6 @@
   overflow: hidden;
 }
 
-
 .app-content {
   display: flex;
   flex: 1;
@@ -22,19 +21,12 @@
 }
 
 .sidebar-left {
-  width: 360px;
+  width: 300px;
   height: calc(100vh - 32px);
   min-height: 0;
   background: #FFF8EE;
   border-radius: 24px;
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
   border: none;
->>>>>>> Stashed changes
-=======
-  border: none;
->>>>>>> Stashed changes
   overflow-y: auto;
   z-index: 10;
   flex-shrink: 0;
@@ -48,14 +40,7 @@
   position: relative;
   background: #FFF8EE;
   border-radius: 24px;
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
   border: none;
->>>>>>> Stashed changes
-=======
-  border: none;
->>>>>>> Stashed changes
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -65,40 +50,24 @@
   flex: 1;
   position: relative;
   overflow: hidden;
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  background: #2A4A3E;
-=======
   background: #FFF8EE;
   min-height: 0;
->>>>>>> Stashed changes
-=======
-  background: #FFF8EE;
-  min-height: 0;
->>>>>>> Stashed changes
 }
 
 .sidebar-right {
   width: 350px;
+  min-width: 250px;
+  max-width: 50vw;
   height: calc(100vh - 32px);
   min-height: 0;
   background: #FFF8EE;
   border-radius: 24px;
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
   border: none;
->>>>>>> Stashed changes
-=======
-  border: none;
->>>>>>> Stashed changes
   display: flex;
   flex-direction: column;
   z-index: 10;
   flex-shrink: 0;
   overflow: hidden;
-<<<<<<< Updated upstream
-=======
   transition: width 0.1s ease;
 }
 
@@ -145,7 +114,6 @@
   font-size: 14px;
   font-weight: 400;
   color: #4CAF50;
->>>>>>> Stashed changes
 }
 
 /* Generate Button Container */
@@ -155,11 +123,6 @@
   align-items: center;
   padding: 24px;
   background: transparent;
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
-=======
->>>>>>> Stashed changes
   border-top: none;
 }
 
@@ -199,17 +162,15 @@
 .resize-handle:hover::after {
   background: rgba(255, 255, 255, 0.3);
   width: 3px;
->>>>>>> Stashed changes
 }
 
 /* Responsive adjustments */
 @media (max-width: 1200px) {
   .sidebar-left {
-    width: 300px;
+    min-width: 200px;
   }
-  
+
   .sidebar-right {
-    width: 300px;
+    min-width: 200px;
   }
 }
-

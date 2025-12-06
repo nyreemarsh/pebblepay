@@ -26,6 +26,8 @@ from app.pdf_generator import generate_contract_pdf
 from app.nodes.explain_contract_node import explain_contract_node
 from app.database import init_db, save_session, get_session, list_sessions, delete_session
 from app.services.solidity_service import generate_smart_contract
+from app.routes.neo_contract_routes import router as neo_contract_router
+from app.agents.neo_contract_generator_agent import NeoContractGeneratorAgent
 
 # ——— TTS Support (from main branch)
 from tts import router as tts_router
@@ -56,6 +58,9 @@ app.add_middleware(
 
 # ——— Include TTS Router
 app.include_router(tts_router, prefix="/api")
+
+# ——— Include Neo Contract Routes
+app.include_router(neo_contract_router)
 
 # ——— Agent Session Storage
 agent_sessions: Dict[str, Any] = {}
@@ -89,6 +94,7 @@ class SolidityRequest(BaseModel):
 class SolidityResponse(BaseModel):
     """Response model for Solidity generation."""
     solidity: str
+    neo_python: Optional[str] = None
     contractName: str
     explanation: str
     functions: list
@@ -320,6 +326,65 @@ async def delete_contract(session_id: str):
     return {"status": "deleted", "session_id": session_id}
 
 
+def _convert_to_neo_spec(blocks: list, edges: list, contract_spec: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """
+    Convert blocks/edges/contract_spec to Neo contract JSON format.
+    """
+    contract_name = "FreelanceContract"
+    if contract_spec:
+        # Try to get contract name from spec
+        freelancer = contract_spec.get("freelancer", {})
+        client = contract_spec.get("client", {})
+        if freelancer.get("name") and client.get("name"):
+            contract_name = f"{freelancer['name']}{client['name']}Contract"
+    
+    actions = []
+    
+    # Add store actions for parties
+    if contract_spec:
+        if contract_spec.get("freelancer"):
+            actions.append({
+                "type": "store_value",
+                "key": "freelancer",
+                "value_type": "UInt160"
+            })
+        if contract_spec.get("client"):
+            actions.append({
+                "type": "store_value",
+                "key": "client",
+                "value_type": "UInt160"
+            })
+        if contract_spec.get("payment", {}).get("amount"):
+            actions.append({
+                "type": "store_value",
+                "key": "payment_amount",
+                "value_type": "int"
+            })
+    
+    # Add release payment action if we have payment info
+    if contract_spec and contract_spec.get("payment"):
+        actions.append({
+            "type": "release_payment",
+            "from": "client",
+            "to": "freelancer",
+            "amount_key": "payment_amount"
+        })
+    
+    # If no actions from spec, create basic escrow flow
+    if not actions:
+        actions = [
+            {"type": "store_value", "key": "client", "value_type": "UInt160"},
+            {"type": "store_value", "key": "freelancer", "value_type": "UInt160"},
+            {"type": "store_value", "key": "amount", "value_type": "int"},
+            {"type": "release_payment", "from": "client", "to": "freelancer", "amount_key": "amount"}
+        ]
+    
+    return {
+        "contract_name": contract_name,
+        "actions": actions
+    }
+
+
 # ——— Solidity Generation Endpoint ———
 
 @app.post("/api/generate-solidity", response_model=SolidityResponse)
@@ -328,6 +393,7 @@ async def generate_solidity(request: SolidityRequest):
     Generate Solidity smart contract code from visual blocks.
     
     Accepts React Flow blocks and edges, converts them to a Solidity contract.
+    Also generates Neo Python contract code.
     """
     try:
         result = await generate_smart_contract(
@@ -335,6 +401,44 @@ async def generate_solidity(request: SolidityRequest):
             edges=request.edges,
             contract_spec=request.contract_spec,
         )
+        
+        # Also generate Neo contract
+        neo_python = None
+        try:
+            print(f"[API] Starting Neo contract generation...")
+            neo_spec = _convert_to_neo_spec(
+                blocks=request.blocks,
+                edges=request.edges,
+                contract_spec=request.contract_spec
+            )
+            print(f"[API] Neo spec: {neo_spec}")
+            neo_agent = NeoContractGeneratorAgent()
+            print(f"[API] Neo agent initialized, calling generate_contract_source...")
+            neo_python = await neo_agent.generate_contract_source(neo_spec)
+            print(f"[API] Neo contract generated successfully, length: {len(neo_python) if neo_python else 0}")
+            if not neo_python or len(neo_python.strip()) == 0:
+                raise ValueError("Generated Neo contract code is empty")
+        except Exception as neo_error:
+            import traceback
+            error_trace = traceback.format_exc()
+            print(f"[API] Neo contract generation error (non-fatal): {neo_error}")
+            print(f"[API] Traceback:\n{error_trace}")
+            # Return detailed error message so user can see what went wrong
+            neo_python = f"""# Error generating Neo contract
+# Error: {str(neo_error)}
+# 
+# This usually means:
+# 1. The Gemini API key might not be configured (check .env file)
+# 2. There was an issue with the LLM request
+# 3. The contract specification might be invalid
+#
+# Check the backend terminal for more details.
+# Error type: {type(neo_error).__name__}
+"""
+        
+        # Ensure neo_python is always set (even if None, convert to empty string or error message)
+        if neo_python is None:
+            neo_python = "# Neo contract generation was not attempted or returned None.\n# Check backend logs for details."
         
         return SolidityResponse(
             solidity=result.get("solidity", ""),
@@ -345,6 +449,7 @@ async def generate_solidity(request: SolidityRequest):
             abi=result.get("abi", "[]"),
             status=result.get("status", "success"),
             error=result.get("error"),
+            neo_python=neo_python,
         )
         
     except Exception as e:

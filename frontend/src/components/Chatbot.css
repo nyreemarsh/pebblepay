@@ -6,14 +6,7 @@
 }
 
 .chatbot-header {
-<<<<<<< Updated upstream
-  padding: 24px;
-=======
   padding: 16px 20px;
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
   border-bottom: none;
   background: transparent;
 }
@@ -32,7 +25,7 @@
 
 .chatbot-title h2 {
   font-size: 20px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-primary);
   letter-spacing: 0.3px;
   margin: 0;
@@ -56,16 +49,15 @@
   object-fit: contain;
 }
 
+
 .chatbot-messages {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 20px;
+  padding: 12px 16px;
+  padding-right: 24px; /* Extra padding for scrollbar */
   display: flex;
   flex-direction: column;
-<<<<<<< Updated upstream
-  gap: 16px;
-=======
   gap: 12px;
 }
 
@@ -95,10 +87,6 @@
 .chatbot-messages {
   scrollbar-width: thick;
   scrollbar-color: #78BEB1 transparent;
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 }
 
 .message {
@@ -108,7 +96,8 @@
 }
 
 .message.user {
-  flex-direction: row-reverse;
+  flex-direction: row;
+  justify-content: flex-end;
 }
 
 .message-icon {
@@ -137,6 +126,15 @@
 .message-content {
   flex: 1;
   max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.message.user .message-content {
+  flex: 0 1 auto;
+  max-width: 80%;
+  align-items: flex-end;
 }
 
 .message-text-wrapper {
@@ -190,8 +188,6 @@
   background: #D29AE7;
   border: none;
   color: #FFFFFF;
-<<<<<<< Updated upstream
-=======
 }
 
 .message.thinking .message-content p {
@@ -247,21 +243,13 @@
     opacity: 1;
     transform: translateY(-4px);
   }
->>>>>>> Stashed changes
 }
 
 .message.user .message-content p {
   background: #F5E6FB;
   border: none;
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  color: var(--text-primary);
-=======
-=======
->>>>>>> Stashed changes
   color: #6B5353;
   text-align: right;
->>>>>>> Stashed changes
 }
 
 .suggestions {
@@ -269,28 +257,24 @@
   flex-direction: column;
   gap: 8px;
   margin-top: 12px;
+  align-items: flex-end;
+  width: 100%;
 }
 
 .suggestion-button {
   padding: 14px 20px;
   background: transparent;
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  border: 1px solid white;
-=======
   border: 1px solid #6B5353;
->>>>>>> Stashed changes
-=======
-  border: 1px solid #6B5353;
->>>>>>> Stashed changes
   border-radius: 16px;
   color: #6B5353;
   font-size: 14px;
   font-weight: 400;
-  text-align: left;
+  text-align: center;
   cursor: pointer;
   transition: all 0.3s ease;
   font-family: 'Nunito', sans-serif;
+  max-width: 80%;
+  box-sizing: border-box;
 }
 
 .suggestion-button:hover {
@@ -336,21 +320,15 @@
   color: var(--text-primary);
 }
 
+.mic-button:active {
+  transform: scale(0.95);
+}
+
 .chat-input {
   width: 100%;
   padding: 14px 50px 14px 50px;
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  background: var(--bg-secondary);
-  border: 1px solid white;
-=======
   background: transparent;
   border: none;
->>>>>>> Stashed changes
-=======
-  background: transparent;
-  border: none;
->>>>>>> Stashed changes
   border-radius: 24px;
   color: #6B5353;
   font-size: 14px;
@@ -362,18 +340,8 @@
 
 .chat-input:focus {
   outline: none;
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  border-color: white;
-  box-shadow: var(--shadow-md);
-=======
   border: none;
   box-shadow: none;
->>>>>>> Stashed changes
-=======
-  border: none;
-  box-shadow: none;
->>>>>>> Stashed changes
 }
 
 .chat-input::placeholder {
@@ -401,7 +369,7 @@
 
 .send-button:hover:not(:disabled) {
   color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.05);
+  background: transparent;
 }
 
 .send-button:disabled {
@@ -409,8 +377,6 @@
   cursor: not-allowed;
 }
 
-<<<<<<< Updated upstream
-=======
 /* Contract Action Buttons */
 .contract-actions {
   display: flex;
@@ -465,4 +431,3 @@
   white-space: pre-wrap;
 }
 
->>>>>>> Stashed changes

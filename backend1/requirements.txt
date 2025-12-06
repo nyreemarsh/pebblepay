@@ -1,8 +1,6 @@
 # --- SpoonOS & Agents ---
 # Install spoon-core (SpoonOS) from GitHub
-# Note: If installing from GitHub fails, use: pip install spoon-ai
 git+https://github.com/XSpoonAi/spoon-core.git@main
-# Alternative: spoon-ai>=0.1.0  # If available on PyPI
 
 # Dependencies (also declared in spoon-core if it has setup.py/pyproject.toml)
 google-generativeai>=0.3.0
@@ -15,3 +13,7 @@ pydantic>=2.0.0
 
 # --- PDF Generation ---
 reportlab>=4.0.0
+
+# --- Neo Smart Contracts ---
+boa3>=0.12.0
+httpx>=0.24.0

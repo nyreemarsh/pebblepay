@@ -1,5 +1,5 @@
 """
-Graph Workflow Definition using SpoonOS Agent Protocol
+Graph Workflow Definition
 Unified contract generation workflow that handles both chat and blocks input.
 
 Workflow:
@@ -9,18 +9,10 @@ Workflow:
 4. validate_spec - Check for issues
 5. generate_contract - Create contract text
 6. explain_contract - Summarize in plain English
-
-This module now uses SpoonOS agent protocol when available.
 """
 from typing import Dict, Any, Optional
-from .state_graph import StateGraph, GraphAgent, SPOONOS_AVAILABLE
+from .state_graph import StateGraph, GraphAgent
 from .contract_schema import get_empty_contract_spec
-
-# Log SpoonOS availability
-if SPOONOS_AVAILABLE:
-    print("[SpoonOS] Using SpoonOS agent protocol")
-else:
-    print("[SpoonOS] SpoonOS not available, using custom implementation")
 
 # Import all nodes
 from .nodes.detect_input_node import detect_input_type_node, route_by_input_type

@@ -232,21 +232,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 56px;
-  height: 56px;
+  width: 48px;
+  height: 48px;
   padding: 0;
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  background: var(--bg-panel);
-=======
   background: transparent;
->>>>>>> Stashed changes
-=======
-  background: transparent;
->>>>>>> Stashed changes
   border: none;
   border-radius: 16px;
-  box-shadow: var(--shadow-md);
+  box-shadow: none;
   z-index: 100;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -255,15 +247,8 @@
 
 .canvas-bin.bin-active {
   background: rgba(255, 77, 77, 0.2);
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  box-shadow: var(--shadow-lg);
-=======
-=======
->>>>>>> Stashed changes
   border: none;
   box-shadow: none;
->>>>>>> Stashed changes
 }
 
 .bin-icon {
