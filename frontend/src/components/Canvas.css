@@ -2,8 +2,172 @@
   width: 100%;
   height: 100%;
   position: relative;
-  background: #2B3034;
+  background: #2A4A3E;
   overflow: hidden;
+}
+
+/* Bokeh effect - Multiple floating gradient circles */
+.bokeh-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.bokeh-circle {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.6;
+  will-change: transform, opacity;
+}
+
+.bokeh-1 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255, 107, 157, 0.3) 0%, transparent 70%);
+  top: 10%;
+  left: 15%;
+  animation: bokehFloat1 20s ease-in-out infinite;
+}
+
+.bokeh-2 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(64, 224, 208, 0.25) 0%, transparent 70%);
+  top: 60%;
+  left: 70%;
+  animation: bokehFloat2 25s ease-in-out infinite;
+}
+
+.bokeh-3 {
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, transparent 70%);
+  top: 40%;
+  left: 50%;
+  animation: bokehFloat3 30s ease-in-out infinite;
+}
+
+.bokeh-4 {
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, rgba(255, 140, 66, 0.25) 0%, transparent 70%);
+  top: 5%;
+  left: 80%;
+  animation: bokehFloat4 22s ease-in-out infinite;
+}
+
+.bokeh-5 {
+  width: 380px;
+  height: 380px;
+  background: radial-gradient(circle, rgba(155, 89, 182, 0.3) 0%, transparent 70%);
+  top: 75%;
+  left: 20%;
+  animation: bokehFloat5 28s ease-in-out infinite;
+}
+
+.bokeh-6 {
+  width: 420px;
+  height: 420px;
+  background: radial-gradient(circle, rgba(46, 204, 113, 0.25) 0%, transparent 70%);
+  top: 30%;
+  left: 5%;
+  animation: bokehFloat6 24s ease-in-out infinite;
+}
+
+@keyframes bokehFloat1 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.6;
+  }
+  33% {
+    transform: translate(80px, -100px) scale(1.2);
+    opacity: 0.8;
+  }
+  66% {
+    transform: translate(-60px, 70px) scale(0.8);
+    opacity: 0.5;
+  }
+}
+
+@keyframes bokehFloat2 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.6;
+  }
+  33% {
+    transform: translate(-100px, 80px) scale(0.9);
+    opacity: 0.7;
+  }
+  66% {
+    transform: translate(90px, -90px) scale(1.15);
+    opacity: 0.8;
+  }
+}
+
+@keyframes bokehFloat3 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.6;
+  }
+  33% {
+    transform: translate(70px, 90px) scale(1.1);
+    opacity: 0.75;
+  }
+  66% {
+    transform: translate(-80px, -70px) scale(0.85);
+    opacity: 0.55;
+  }
+}
+
+@keyframes bokehFloat4 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.6;
+  }
+  33% {
+    transform: translate(-90px, 60px) scale(0.95);
+    opacity: 0.7;
+  }
+  66% {
+    transform: translate(100px, -80px) scale(1.25);
+    opacity: 0.85;
+  }
+}
+
+@keyframes bokehFloat5 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.6;
+  }
+  33% {
+    transform: translate(60px, -80px) scale(1.15);
+    opacity: 0.8;
+  }
+  66% {
+    transform: translate(-70px, 90px) scale(0.9);
+    opacity: 0.5;
+  }
+}
+
+@keyframes bokehFloat6 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.6;
+  }
+  33% {
+    transform: translate(-80px, -60px) scale(0.85);
+    opacity: 0.55;
+  }
+  66% {
+    transform: translate(90px, 100px) scale(1.2);
+    opacity: 0.75;
+  }
 }
 
 .canvas-empty {
@@ -21,11 +185,13 @@
 
 /* React Flow styling overrides */
 .canvas-wrapper .react-flow {
-  background: #2B3034;
+  background: transparent;
+  position: relative;
+  z-index: 1;
 }
 
 .canvas-wrapper .react-flow__controls {
-  background: #2B3034;
+  background: #2A4A3E;
   border: none;
   box-shadow: var(--shadow-md);
 }
@@ -41,9 +207,20 @@
 }
 
 .canvas-wrapper .react-flow__minimap {
-  background: var(--bg-secondary);
-  border: none;
-  box-shadow: var(--shadow-md);
+  display: none;
+}
+
+.canvas-wrapper .react-flow__attribution {
+  display: none !important;
+}
+
+/* React Flow edge/arrow styling */
+.canvas-wrapper .react-flow__edge-path {
+  stroke: #FFFFFF !important;
+}
+
+.canvas-wrapper .react-flow__arrowhead {
+  fill: #FFFFFF !important;
 }
 
 /* Bin/Trash Button */

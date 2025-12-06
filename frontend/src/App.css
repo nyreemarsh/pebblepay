@@ -4,7 +4,7 @@
   height: 100vh;
   min-height: 100vh;
   width: 100vw;
-  background: #252A2E;
+  background: #1A3A2E;
   position: relative;
   overflow: hidden;
 }
@@ -25,9 +25,8 @@
   width: 360px;
   height: calc(100vh - 32px);
   min-height: 0;
-  background: #2B3034;
+  background: #2A4A3E;
   border-radius: 24px;
-  box-shadow: var(--shadow-md);
   overflow-y: auto;
   z-index: 10;
   flex-shrink: 0;
@@ -39,9 +38,8 @@
   height: calc(100vh - 32px);
   min-height: 0;
   position: relative;
-  background: #2B3034;
+  background: #2A4A3E;
   border-radius: 24px;
-  box-shadow: var(--shadow-md);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -51,16 +49,15 @@
   flex: 1;
   position: relative;
   overflow: hidden;
-  background: #2B3034;
+  background: #2A4A3E;
 }
 
 .sidebar-right {
   width: 350px;
   height: calc(100vh - 32px);
   min-height: 0;
-  background: #2B3034;
+  background: #2A4A3E;
   border-radius: 24px;
-  box-shadow: var(--shadow-md);
   display: flex;
   flex-direction: column;
   z-index: 10;

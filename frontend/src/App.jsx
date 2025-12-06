@@ -186,15 +186,15 @@ function App() {
         {/* Center - Canvas */}
         <div className="canvas-container">
           <div className="canvas-area">
-            <Canvas 
-              blocks={blocks} 
-              onBlocksChange={handleBlocksChange}
-              onNodeSelect={setSelectedNodeId}
-              selectedNodeId={selectedNodeId}
-              edges={edges}
-              onEdgesChange={setEdges}
-              onDeleteBlock={handleDeleteBlock}
-            />
+          <Canvas 
+            blocks={blocks} 
+            onBlocksChange={handleBlocksChange}
+            onNodeSelect={setSelectedNodeId}
+            selectedNodeId={selectedNodeId}
+            edges={edges}
+            onEdgesChange={setEdges}
+            onDeleteBlock={handleDeleteBlock}
+          />
           </div>
           {/* Generate Button - Separate from canvas, underneath */}
           <div className="generate-button-container-wrapper">
