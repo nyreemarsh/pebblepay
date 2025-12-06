@@ -25,6 +25,7 @@ from app.graph_workflow import create_contract_graph_agent, get_opening_message
 from app.pdf_generator import generate_contract_pdf
 from app.nodes.explain_contract_node import explain_contract_node
 from app.database import init_db, save_session, get_session, list_sessions, delete_session
+from app.services.solidity_service import generate_smart_contract
 
 # ——— TTS Support (from main branch)
 from tts import router as tts_router
@@ -76,6 +77,25 @@ class ChatResponse(BaseModel):
     missing_fields: Optional[list] = None
     suggestions: Optional[list] = None
     contract_ready: bool = False
+
+
+class SolidityRequest(BaseModel):
+    """Request model for Solidity generation."""
+    blocks: list
+    edges: list
+    contract_spec: Optional[Dict[str, Any]] = None
+
+
+class SolidityResponse(BaseModel):
+    """Response model for Solidity generation."""
+    solidity: str
+    contractName: str
+    explanation: str
+    functions: list
+    events: list
+    abi: str
+    status: str
+    error: Optional[str] = None
 
 
 @app.get("/")
@@ -298,6 +318,38 @@ async def delete_contract(session_id: str):
         raise HTTPException(status_code=404, detail="Contract not found")
     
     return {"status": "deleted", "session_id": session_id}
+
+
+# ——— Solidity Generation Endpoint ———
+
+@app.post("/api/generate-solidity", response_model=SolidityResponse)
+async def generate_solidity(request: SolidityRequest):
+    """
+    Generate Solidity smart contract code from visual blocks.
+    
+    Accepts React Flow blocks and edges, converts them to a Solidity contract.
+    """
+    try:
+        result = await generate_smart_contract(
+            blocks=request.blocks,
+            edges=request.edges,
+            contract_spec=request.contract_spec,
+        )
+        
+        return SolidityResponse(
+            solidity=result.get("solidity", ""),
+            contractName=result.get("contractName", "GeneratedContract"),
+            explanation=result.get("explanation", ""),
+            functions=result.get("functions", []),
+            events=result.get("events", []),
+            abi=result.get("abi", "[]"),
+            status=result.get("status", "success"),
+            error=result.get("error"),
+        )
+        
+    except Exception as e:
+        print("[API] Solidity generation error:", e)
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 def get_field_suggestions(field: str) -> list:
