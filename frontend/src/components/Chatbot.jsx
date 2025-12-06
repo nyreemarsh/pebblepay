@@ -1,16 +1,45 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Send, User, Mic, Volume2, Download, FileText } from 'lucide-react'
+import { Send, Mic, Volume2, VolumeX, Download, FileText } from 'lucide-react'
+import { useScribe } from '@elevenlabs/react'
 import './Chatbot.css'
 
 const API_BASE_URL = 'http://localhost:8000'
 
-function Chatbot({ messages, onMessage, sessionId, onAddMessage }) {
+function Chatbot({ messages, onMessage, sessionId, onAddMessage, isLoading }) {
   const [input, setInput] = useState('')
   const [isExplaining, setIsExplaining] = useState(false)
+  const [isMuted, setIsMuted] = useState(false)
+  const [hiddenSuggestionIds, setHiddenSuggestionIds] = useState(new Set())
   const messagesEndRef = useRef(null)
   const lastSpokenMessageId = useRef(null)
   const hasUserInteracted = useRef(false)
+  const currentAudioRef = useRef(null)
+  const isMutedRef = useRef(false)
+  
+  // Initialize ElevenLabs Scribe for STT
+  const scribe = useScribe({
+    modelId: "scribe_v2_realtime",
+    onPartialTranscript: (data) => {
+      // Update input with partial transcript as user speaks (live transcription)
+      if (data.text) {
+        setInput(data.text)
+      }
+    },
+    onCommittedTranscript: (data) => {
+      // Final transcript when speech segment is complete
+      if (data.text) {
+        setInput(data.text)
+      }
+    },
+    onCommittedTranscriptWithTimestamps: (data) => {
+      // Optional: Handle timestamps if needed
+      console.log("Timestamps:", data.words)
+    },
+  })
+  
+  // Get the current input value (prioritize manual input, then partial transcript)
+  const currentInputValue = input || scribe.partialTranscript || ''
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -21,7 +50,15 @@ function Chatbot({ messages, onMessage, sessionId, onAddMessage }) {
   }, [messages])
 
   // TTS function to speak text
-  const speak = async (text) => {
+  const speak = async (text, bypassMute = false) => {
+    if (!bypassMute && isMutedRef.current) return // Don't speak if muted
+    
+    // Stop any currently playing audio
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause()
+      currentAudioRef.current = null
+    }
+    
     try {
       console.log('Sending TTS request for:', text)
       const response = await fetch("http://localhost:8000/api/tts", {
@@ -41,23 +78,57 @@ function Chatbot({ messages, onMessage, sessionId, onAddMessage }) {
       const audioBlob = new Blob([audioData], { type: "audio/mpeg" })
       const audioUrl = URL.createObjectURL(audioBlob)
       const audio = new Audio(audioUrl)
+      currentAudioRef.current = audio
       
       console.log('Playing audio...')
       audio.play().catch((error) => {
         // Silently handle autoplay restrictions - user can click the audio button to play manually
         console.log('Audio autoplay blocked (requires user interaction):', error.message)
         // Don't show alert - this is expected behavior for autoplay
+        currentAudioRef.current = null
       })
 
       // Clean up the URL after playback
       audio.addEventListener('ended', () => {
         URL.revokeObjectURL(audioUrl)
         console.log('Audio playback finished')
+        currentAudioRef.current = null
       })
     } catch (error) {
       console.error('Error with TTS:', error)
       alert(`TTS Error: ${error.message}. Make sure the backend is running on http://localhost:8000`)
+      currentAudioRef.current = null
     }
+  }
+
+  // Handle starting/stopping ElevenLabs STT
+  const handleStartListening = async () => {
+    try {
+      // Fetch token from backend
+      const response = await fetch(`${API_BASE_URL}/api/scribe-token`)
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ detail: response.statusText }))
+        throw new Error(errorData.detail || 'Failed to get token')
+      }
+      const { token } = await response.json()
+
+      // Connect with microphone
+      await scribe.connect({
+        token,
+        microphone: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      })
+    } catch (error) {
+      console.error('Error starting STT:', error)
+      alert(`Error: ${error.message}. Make sure the backend is running and your ElevenLabs API key is configured.`)
+    }
+  }
+
+  const handleStopListening = () => {
+    scribe.disconnect()
   }
 
   // Track user interaction to enable autoplay
@@ -78,6 +149,19 @@ function Chatbot({ messages, onMessage, sessionId, onAddMessage }) {
     }
   }, [])
 
+  // Sync mute ref with state
+  useEffect(() => {
+    isMutedRef.current = isMuted
+  }, [isMuted])
+
+  // Stop audio when muted
+  useEffect(() => {
+    if (isMuted && currentAudioRef.current) {
+      currentAudioRef.current.pause()
+      currentAudioRef.current = null
+    }
+  }, [isMuted])
+
   // Auto-play whenever Pibble sends a message (only after user interaction)
   useEffect(() => {
     if (messages.length === 0) return
@@ -89,11 +173,13 @@ function Chatbot({ messages, onMessage, sessionId, onAddMessage }) {
     // 2. We haven't spoken this message yet
     // 3. The message has text
     // 4. User has interacted with the page (to allow autoplay)
+    // 5. Not muted
     if (
       last.type !== 'user' && 
       last.id !== lastSpokenMessageId.current &&
       last.text &&
-      hasUserInteracted.current
+      hasUserInteracted.current &&
+      !isMuted
     ) {
       lastSpokenMessageId.current = last.id
       // Small delay to ensure component is fully mounted
@@ -102,25 +188,33 @@ function Chatbot({ messages, onMessage, sessionId, onAddMessage }) {
       }, 100)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [messages])
+  }, [messages, isMuted])
 
   const handleSend = () => {
-    if (input.trim()) {
+    const textToSend = currentInputValue.trim()
+    if (textToSend) {
       // Mark that user has interacted (enables autoplay for future messages)
       hasUserInteracted.current = true
       
       onMessage({
         id: Date.now(),
         type: 'user',
-        text: input,
+        text: textToSend,
       })
       setInput('')
+      // Disconnect STT if connected
+      if (scribe.isConnected) {
+        scribe.disconnect()
+      }
     }
   }
 
-  const handleSuggestion = (suggestion) => {
+  const handleSuggestion = (suggestion, messageId) => {
     // Mark that user has interacted (enables autoplay for future messages)
     hasUserInteracted.current = true
+    
+    // Hide suggestions for this message
+    setHiddenSuggestionIds(prev => new Set([...prev, messageId]))
     
     onMessage({
       id: Date.now(),
@@ -202,42 +296,61 @@ function Chatbot({ messages, onMessage, sessionId, onAddMessage }) {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
             >
-              {message.type === 'user' && (
-                <div className="message-icon user-icon">
-                  <User size={16} />
-                </div>
-              )}
               <div className="message-content">
                 <div className="message-text-wrapper">
                 <p>{message.text}</p>
                   {message.type !== 'user' && message.text && (
                     <motion.button
                       className="audio-button"
-                      onClick={() => speak(message.text)}
+                      onClick={() => {
+                        if (isMuted) {
+                          // Unmute and play
+                          setIsMuted(false)
+                          isMutedRef.current = false
+                          // Small delay to ensure state updates
+                          setTimeout(() => {
+                            speak(message.text, true) // Bypass mute check for manual play
+                          }, 50)
+                        } else {
+                          // Mute - this will stop any playing audio via useEffect
+                          setIsMuted(true)
+                          isMutedRef.current = true
+                        }
+                      }}
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
-                      title="Play audio"
+                      title={isMuted ? "Unmute and play audio" : "Mute Pibble"}
                     >
-                      <Volume2 size={16} />
+                      {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
                     </motion.button>
                   )}
                 </div>
                 {message.suggestions && (
-                  <div className="suggestions">
-                    {message.suggestions.map((suggestion, idx) => (
-                      <motion.button
-                        key={idx}
-                        className="suggestion-button"
-                        onClick={() => handleSuggestion(suggestion)}
-                        whileTap={{ scale: 0.95 }}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: idx * 0.1 }}
+                  <AnimatePresence>
+                    {!hiddenSuggestionIds.has(message.id) && (
+                      <motion.div 
+                        key={`suggestions-${message.id}`}
+                        className="suggestions"
+                        initial={{ opacity: 1 }}
+                        exit={{ opacity: 0, transition: { duration: 0.3 } }}
                       >
-                        {suggestion}
-                      </motion.button>
-                    ))}
-                  </div>
+                        {message.suggestions.map((suggestion, idx) => (
+                          <motion.button
+                            key={idx}
+                            className="suggestion-button"
+                            onClick={() => handleSuggestion(suggestion, message.id)}
+                            whileTap={{ scale: 0.95 }}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: 20, transition: { duration: 0.2 } }}
+                            transition={{ delay: idx * 0.1 }}
+                          >
+                            {suggestion}
+                          </motion.button>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 )}
                 {message.contractReady && (
                   <div className="contract-actions">
@@ -275,24 +388,53 @@ function Chatbot({ messages, onMessage, sessionId, onAddMessage }) {
         <div ref={messagesEndRef} />
       </div>
 
+      <AnimatePresence>
+        {isLoading && (
+          <motion.div
+            key="thinking"
+            className="thinking-indicator"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+          >
+            <p className="thinking-text">
+              Pibble is thinking
+              <span className="thinking-dots">
+                <span className="dot">.</span>
+                <span className="dot">.</span>
+                <span className="dot">.</span>
+              </span>
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="chatbot-input">
         <div className="chat-input-wrapper">
           <motion.button
             className="mic-button"
             onClick={() => {
-              // Voice input handler - to be implemented
-              console.log('Voice input clicked')
+              if (scribe.isConnected) {
+                handleStopListening()
+              } else {
+                handleStartListening()
+              }
             }}
             whileTap={{ scale: 0.95 }}
+            style={{
+              background: scribe.isConnected ? 'rgba(255, 77, 77, 0.2)' : 'var(--bg-secondary)',
+              color: scribe.isConnected ? '#ff6b6b' : 'var(--text-muted)'
+            }}
           >
             <Mic size={18} />
           </motion.button>
         <input
           type="text"
-          value={input}
+          value={currentInputValue}
           onChange={(e) => setInput(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-            placeholder="Ask Pibble for help..."
+          placeholder={scribe.isConnected ? "Listening..." : "Ask Pibble for help..."}
           className="chat-input"
         />
         <motion.button
@@ -300,7 +442,7 @@ function Chatbot({ messages, onMessage, sessionId, onAddMessage }) {
           onClick={handleSend}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-          disabled={!input.trim()}
+          disabled={!currentInputValue.trim()}
         >
           <Send size={18} />
         </motion.button>
