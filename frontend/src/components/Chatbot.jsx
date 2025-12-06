@@ -1,10 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Send, User, Mic } from 'lucide-react'
+import { Send, User, Mic, Download, FileText } from 'lucide-react'
 import './Chatbot.css'
 
-function Chatbot({ messages, onMessage }) {
+const API_BASE_URL = 'http://localhost:8000'
+
+function Chatbot({ messages, onMessage, sessionId, onAddMessage }) {
   const [input, setInput] = useState('')
+  const [isExplaining, setIsExplaining] = useState(false)
   const messagesEndRef = useRef(null)
 
   const scrollToBottom = () => {
@@ -32,6 +35,52 @@ function Chatbot({ messages, onMessage }) {
       type: 'user',
       text: suggestion,
     })
+  }
+
+  const handleDownloadPdf = async () => {
+    if (!sessionId) return
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/session/${sessionId}/download-contract`)
+      if (!response.ok) throw new Error('Failed to download')
+      
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'contract.pdf'
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+    } catch (error) {
+      console.error('Download error:', error)
+    }
+  }
+
+  const handleExplainContract = async () => {
+    if (!sessionId || isExplaining) return
+    
+    setIsExplaining(true)
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/session/${sessionId}/explain-contract`)
+      if (!response.ok) throw new Error('Failed to get explanation')
+      
+      const data = await response.json()
+      
+      // Add the explanation as a new message
+      if (onAddMessage && data.explanation) {
+        onAddMessage({
+          id: Date.now(),
+          type: 'suggestion',
+          text: `📋 **Here's your contract explained:**\n\n${data.explanation}`,
+        })
+      }
+    } catch (error) {
+      console.error('Explain error:', error)
+    } finally {
+      setIsExplaining(false)
+    }
   }
 
   return (
@@ -89,6 +138,35 @@ function Chatbot({ messages, onMessage }) {
                         {suggestion}
                       </motion.button>
                     ))}
+                  </div>
+                )}
+                {message.contractReady && (
+                  <div className="contract-actions">
+                    <motion.button
+                      className="action-button download-btn"
+                      onClick={handleDownloadPdf}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 }}
+                    >
+                      <Download size={18} />
+                      Download PDF
+                    </motion.button>
+                    <motion.button
+                      className="action-button explain-btn"
+                      onClick={handleExplainContract}
+                      disabled={isExplaining}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 }}
+                    >
+                      <FileText size={18} />
+                      {isExplaining ? 'Loading...' : 'Explain Contract'}
+                    </motion.button>
                   </div>
                 )}
               </div>
