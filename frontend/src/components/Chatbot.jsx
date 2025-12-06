@@ -14,6 +14,8 @@ function Chatbot({ messages, onMessage, sessionId, onAddMessage, isLoading }) {
   const messagesEndRef = useRef(null)
   const lastSpokenMessageId = useRef(null)
   const hasUserInteracted = useRef(false)
+  const currentAudioRef = useRef(null)
+  const isMutedRef = useRef(false)
   
   // Initialize ElevenLabs Scribe for STT
   const scribe = useScribe({
@@ -48,8 +50,14 @@ function Chatbot({ messages, onMessage, sessionId, onAddMessage, isLoading }) {
   }, [messages])
 
   // TTS function to speak text
-  const speak = async (text) => {
-    if (isMuted) return // Don't speak if muted
+  const speak = async (text, bypassMute = false) => {
+    if (!bypassMute && isMutedRef.current) return // Don't speak if muted
+    
+    // Stop any currently playing audio
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause()
+      currentAudioRef.current = null
+    }
     
     try {
       console.log('Sending TTS request for:', text)
@@ -70,22 +78,26 @@ function Chatbot({ messages, onMessage, sessionId, onAddMessage, isLoading }) {
       const audioBlob = new Blob([audioData], { type: "audio/mpeg" })
       const audioUrl = URL.createObjectURL(audioBlob)
       const audio = new Audio(audioUrl)
+      currentAudioRef.current = audio
       
       console.log('Playing audio...')
       audio.play().catch((error) => {
         // Silently handle autoplay restrictions - user can click the audio button to play manually
         console.log('Audio autoplay blocked (requires user interaction):', error.message)
         // Don't show alert - this is expected behavior for autoplay
+        currentAudioRef.current = null
       })
 
       // Clean up the URL after playback
       audio.addEventListener('ended', () => {
         URL.revokeObjectURL(audioUrl)
         console.log('Audio playback finished')
+        currentAudioRef.current = null
       })
     } catch (error) {
       console.error('Error with TTS:', error)
       alert(`TTS Error: ${error.message}. Make sure the backend is running on http://localhost:8000`)
+      currentAudioRef.current = null
     }
   }
 
@@ -137,6 +149,19 @@ function Chatbot({ messages, onMessage, sessionId, onAddMessage, isLoading }) {
     }
   }, [])
 
+  // Sync mute ref with state
+  useEffect(() => {
+    isMutedRef.current = isMuted
+  }, [isMuted])
+
+  // Stop audio when muted
+  useEffect(() => {
+    if (isMuted && currentAudioRef.current) {
+      currentAudioRef.current.pause()
+      currentAudioRef.current = null
+    }
+  }, [isMuted])
+
   // Auto-play whenever Pibble sends a message (only after user interaction)
   useEffect(() => {
     if (messages.length === 0) return
@@ -163,7 +188,7 @@ function Chatbot({ messages, onMessage, sessionId, onAddMessage, isLoading }) {
       }, 100)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [messages])
+  }, [messages, isMuted])
 
   const handleSend = () => {
     const textToSend = currentInputValue.trim()
@@ -279,11 +304,17 @@ function Chatbot({ messages, onMessage, sessionId, onAddMessage, isLoading }) {
                       className="audio-button"
                       onClick={() => {
                         if (isMuted) {
+                          // Unmute and play
                           setIsMuted(false)
-                          // Small delay to ensure state updates before speaking
-                          setTimeout(() => speak(message.text), 50)
+                          isMutedRef.current = false
+                          // Small delay to ensure state updates
+                          setTimeout(() => {
+                            speak(message.text, true) // Bypass mute check for manual play
+                          }, 50)
                         } else {
+                          // Mute - this will stop any playing audio via useEffect
                           setIsMuted(true)
+                          isMutedRef.current = true
                         }
                       }}
                       whileHover={{ scale: 1.1 }}
