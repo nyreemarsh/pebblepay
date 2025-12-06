@@ -111,7 +111,7 @@ You'll need **two terminal windows** running simultaneously:
 
 ```bash
 cd backend
-python main.py
+uvicorn main:app --host 0.0.0.0 --port 800
 ```
 
 The backend API will start at `http://localhost:8000`
