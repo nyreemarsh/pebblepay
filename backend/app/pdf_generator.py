@@ -1,210 +1,303 @@
 """
 PDF Generator for Contracts
-Creates professional, well-formatted PDF contracts.
+Creates professional, well-formatted legal document PDF contracts.
 """
 import io
 from datetime import datetime
 from typing import Dict, Any
 from reportlab.lib import colors
-from reportlab.lib.pagesizes import A4
+from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch, cm
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
+from reportlab.lib.units import inch, mm
+from reportlab.platypus import (
+    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, 
+    HRFlowable, PageBreak
+)
 from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY, TA_LEFT
+from reportlab.pdfgen import canvas
+
+
+class NumberedCanvas(canvas.Canvas):
+    """Custom canvas to add page numbers in footer."""
+    def __init__(self, *args, **kwargs):
+        canvas.Canvas.__init__(self, *args, **kwargs)
+        self.pages = []
+        
+    def showPage(self):
+        self.pages.append(dict(self.__dict__))
+        self._startPage()
+        
+    def save(self):
+        page_count = len(self.pages)
+        for page in self.pages:
+            self.__dict__.update(page)
+            self.draw_page_number(page_count)
+            canvas.Canvas.showPage(self)
+        canvas.Canvas.save(self)
+        
+    def draw_page_number(self, page_count):
+        self.saveState()
+        self.setFont("Times-Roman", 9)
+        page_num = self._pageNumber
+        text = f"Page {page_num} of {page_count}"
+        self.drawRightString(7.5*inch, 0.5*inch, text)
+        self.restoreState()
+
+
+def clean_markdown(text: str) -> str:
+    """Remove any markdown formatting from text."""
+    import re
+    
+    # Remove bold (**text** or __text__)
+    text = re.sub(r'\*\*([^*]+)\*\*', r'\1', text)
+    text = re.sub(r'__([^_]+)__', r'\1', text)
+    
+    # Remove italic (*text* or _text_)
+    text = re.sub(r'(?<!\*)\*([^*]+)\*(?!\*)', r'\1', text)
+    text = re.sub(r'(?<!_)_([^_]+)_(?!_)', r'\1', text)
+    
+    # Remove markdown headers
+    text = re.sub(r'^#{1,6}\s*', '', text, flags=re.MULTILINE)
+    
+    # Replace asterisk bullets with dashes
+    text = re.sub(r'^\s*\*\s+', '- ', text, flags=re.MULTILINE)
+    
+    # Clean stray asterisks
+    text = re.sub(r'^\s*\*+\s*', '', text, flags=re.MULTILINE)
+    
+    return text
 
 
 def generate_contract_pdf(contract_text: str, contract_spec: Dict[str, Any]) -> bytes:
-    """
-    Generate a professional PDF from contract text and spec.
+    """Generate a professional legal document PDF."""
+    # Clean any markdown from contract text
+    contract_text = clean_markdown(contract_text)
     
-    Args:
-        contract_text: The full contract text
-        contract_spec: The contract specification dict
-        
-    Returns:
-        PDF file as bytes
-    """
     buffer = io.BytesIO()
     
-    # Create document
     doc = SimpleDocTemplate(
         buffer,
-        pagesize=A4,
-        rightMargin=2*cm,
-        leftMargin=2*cm,
-        topMargin=2*cm,
-        bottomMargin=2*cm,
+        pagesize=letter,
+        rightMargin=1.25*inch,
+        leftMargin=1.25*inch,
+        topMargin=1*inch,
+        bottomMargin=1*inch,
     )
     
-    # Get styles
     styles = getSampleStyleSheet()
     
-    # Custom styles
+    # Legal document styles - Times font for formal look
     title_style = ParagraphStyle(
         'ContractTitle',
-        parent=styles['Heading1'],
-        fontSize=24,
-        spaceAfter=30,
+        fontName='Times-Bold',
+        fontSize=16,
+        spaceAfter=6,
         alignment=TA_CENTER,
-        textColor=colors.HexColor('#1a1a2e'),
+        textColor=colors.black,
+        leading=20,
     )
     
-    heading_style = ParagraphStyle(
-        'SectionHeading',
-        parent=styles['Heading2'],
-        fontSize=14,
-        spaceBefore=20,
-        spaceAfter=10,
-        textColor=colors.HexColor('#16213e'),
-        borderPadding=5,
+    subtitle_style = ParagraphStyle(
+        'Subtitle',
+        fontName='Times-Roman',
+        fontSize=11,
+        spaceAfter=18,
+        alignment=TA_CENTER,
+        textColor=colors.HexColor('#333333'),
+    )
+    
+    section_style = ParagraphStyle(
+        'Section',
+        fontName='Times-Bold',
+        fontSize=11,
+        spaceBefore=14,
+        spaceAfter=6,
+        textColor=colors.black,
+        leading=14,
     )
     
     body_style = ParagraphStyle(
-        'ContractBody',
-        parent=styles['Normal'],
-        fontSize=11,
-        leading=16,
+        'Body',
+        fontName='Times-Roman',
+        fontSize=10,
+        leading=13,
         alignment=TA_JUSTIFY,
         spaceAfter=8,
     )
     
-    small_style = ParagraphStyle(
-        'SmallText',
-        parent=styles['Normal'],
-        fontSize=9,
+    clause_style = ParagraphStyle(
+        'Clause',
+        fontName='Times-Roman',
+        fontSize=10,
+        leading=13,
+        alignment=TA_JUSTIFY,
+        spaceAfter=6,
+        leftIndent=0.25*inch,
+    )
+    
+    party_style = ParagraphStyle(
+        'Party',
+        fontName='Times-Roman',
+        fontSize=10,
+        leading=13,
+        spaceAfter=4,
+        leftIndent=0.4*inch,
+    )
+    
+    footer_style = ParagraphStyle(
+        'Footer',
+        fontName='Helvetica',
+        fontSize=8,
         textColor=colors.grey,
         alignment=TA_CENTER,
     )
     
-    # Build content
     story = []
+    today = datetime.now().strftime("%B %d, %Y")
     
     # Title
-    title = contract_spec.get("title", "Freelance Service Agreement")
+    title = contract_spec.get("title", "FREELANCE SERVICE AGREEMENT")
     story.append(Paragraph(title.upper(), title_style))
-    story.append(Spacer(1, 0.3*inch))
+    story.append(Paragraph(f"Effective Date: {today}", subtitle_style))
     
-    # Date line
-    today = datetime.now().strftime("%B %d, %Y")
-    story.append(Paragraph(f"<i>Effective Date: {today}</i>", small_style))
-    story.append(Spacer(1, 0.3*inch))
+    # Top line
+    story.append(HRFlowable(width="100%", thickness=1.5, color=colors.black, spaceAfter=16))
     
-    # Divider
-    story.append(HRFlowable(width="100%", thickness=2, color=colors.HexColor('#1D838D')))
-    story.append(Spacer(1, 0.2*inch))
+    # Preamble
+    story.append(Paragraph(
+        "<b>WHEREAS</b>, the parties desire to enter into this Agreement for the provision of services as set forth herein;",
+        body_style
+    ))
+    story.append(Paragraph(
+        "<b>NOW, THEREFORE</b>, in consideration of the mutual covenants and agreements contained herein, and for other good and valuable consideration, the receipt and sufficiency of which are hereby acknowledged, the parties agree as follows:",
+        body_style
+    ))
+    story.append(Spacer(1, 0.1*inch))
     
-    # Parse and format contract text
+    # Parse sections
     sections = parse_contract_sections(contract_text)
     
     for section_title, section_content in sections:
         if section_title:
-            story.append(Paragraph(section_title, heading_style))
+            formatted_title = format_section_title(section_title)
+            story.append(Paragraph(formatted_title, section_style))
         
-        # Clean and format content
         for para in section_content.split('\n\n'):
             para = para.strip()
-            if para:
-                # Handle bullet points
-                if para.startswith('•') or para.startswith('-') or para.startswith('*'):
-                    para = para.replace('•', '&bull;').replace('- ', '&bull; ').replace('* ', '&bull; ')
+            if not para:
+                continue
+            
+            # Numbered clauses
+            if para and len(para) > 2 and para[0].isdigit() and para[1] == '.':
+                story.append(Paragraph(format_clause(para), clause_style))
+            # Bullet points
+            elif para.startswith('•') or para.startswith('-') or para.startswith('*'):
+                para = para.replace('•', '&bull;').replace('- ', '&bull; ').replace('* ', '&bull; ')
+                story.append(Paragraph(f"&nbsp;&nbsp;&nbsp;{para}", body_style))
+            # Party info
+            elif any(kw in para.lower() for kw in ['freelancer:', 'client:', 'email:', 'address:']):
+                story.append(Paragraph(para, party_style))
+            else:
                 story.append(Paragraph(para, body_style))
         
-        story.append(Spacer(1, 0.1*inch))
+        story.append(Spacer(1, 0.05*inch))
     
-    # Signature section
-    story.append(Spacer(1, 0.5*inch))
-    story.append(HRFlowable(width="100%", thickness=1, color=colors.grey))
-    story.append(Spacer(1, 0.3*inch))
+    # Signature page
+    story.append(PageBreak())
+    story.append(HRFlowable(width="100%", thickness=1.5, color=colors.black, spaceAfter=16))
     
-    story.append(Paragraph("SIGNATURES", heading_style))
-    story.append(Spacer(1, 0.2*inch))
+    story.append(Paragraph(
+        "<b>IN WITNESS WHEREOF</b>, the parties have executed this Agreement as of the date first written above.",
+        body_style
+    ))
+    story.append(Spacer(1, 0.4*inch))
     
-    # Get party names
+    # Get names
     freelancer = contract_spec.get("freelancer", {}) or {}
     client = contract_spec.get("client", {}) or {}
-    freelancer_name = freelancer.get("name", "Freelancer")
-    client_name = client.get("name", "Client")
+    freelancer_name = freelancer.get("name", "")
+    client_name = client.get("name", "")
     
     # Signature table
     sig_data = [
-        ["FREELANCER:", "", "CLIENT:"],
+        [Paragraph("<b>FREELANCER:</b>", body_style), "", Paragraph("<b>CLIENT:</b>", body_style)],
         ["", "", ""],
-        ["Signature: _______________________", "", "Signature: _______________________"],
         ["", "", ""],
-        [f"Name: {freelancer_name}", "", f"Name: {client_name}"],
+        ["Signature: ________________________", "", "Signature: ________________________"],
         ["", "", ""],
-        ["Date: _______________________", "", "Date: _______________________"],
+        [f"Print Name: {freelancer_name}", "", f"Print Name: {client_name}"],
+        ["", "", ""],
+        ["Date: ____________________________", "", "Date: ____________________________"],
     ]
     
-    sig_table = Table(sig_data, colWidths=[2.5*inch, 1*inch, 2.5*inch])
+    sig_table = Table(sig_data, colWidths=[2.5*inch, 0.75*inch, 2.5*inch])
     sig_table.setStyle(TableStyle([
+        ('FONTNAME', (0, 0), (-1, -1), 'Times-Roman'),
         ('FONTSIZE', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-        ('TOPPADDING', (0, 0), (-1, -1), 8),
-        ('FONTNAME', (0, 0), (0, 0), 'Helvetica-Bold'),
-        ('FONTNAME', (2, 0), (2, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ('TOPPADDING', (0, 0), (-1, -1), 6),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
     ]))
     
     story.append(sig_table)
     
     # Footer
     story.append(Spacer(1, 0.5*inch))
-    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor('#1D838D')))
-    story.append(Spacer(1, 0.1*inch))
-    story.append(Paragraph(
-        f"Generated by PebblePay Contract Assistant • {today}",
-        small_style
-    ))
+    story.append(HRFlowable(width="100%", thickness=0.5, color=colors.grey, spaceAfter=8))
+    story.append(Paragraph(f"Contract generated by PebblePay • {today}", footer_style))
     
-    # Build PDF
-    doc.build(story)
+    # Build with page numbers
+    doc.build(story, canvasmaker=NumberedCanvas)
     
-    # Get PDF bytes
     pdf_bytes = buffer.getvalue()
     buffer.close()
-    
     return pdf_bytes
 
 
+def format_section_title(title: str) -> str:
+    """Format section title for legal document."""
+    title = title.strip()
+    # Add ARTICLE prefix if numbered
+    if title and title[0].isdigit():
+        parts = title.split('.', 1)
+        if len(parts) == 2:
+            num = parts[0].strip()
+            text = parts[1].strip().upper()
+            return f"ARTICLE {num}. {text}"
+    return title.upper()
+
+
+def format_clause(clause: str) -> str:
+    """Format a numbered clause."""
+    return clause
+
+
 def parse_contract_sections(contract_text: str) -> list:
-    """
-    Parse contract text into sections.
-    Returns list of (title, content) tuples.
-    """
+    """Parse contract text into sections."""
     sections = []
     current_title = None
     current_content = []
     
-    lines = contract_text.split('\n')
-    
-    for line in lines:
+    for line in contract_text.split('\n'):
         line_stripped = line.strip()
-        
-        # Check if it's a section header (numbered or all caps)
         is_header = False
         
-        # Numbered headers like "1. PARTIES" or "1. Parties"
         if line_stripped and len(line_stripped) > 2:
             if line_stripped[0].isdigit() and '.' in line_stripped[:3]:
                 is_header = True
-            # All caps headers
-            elif line_stripped.isupper() and len(line_stripped) > 3 and len(line_stripped) < 50:
+            elif line_stripped.isupper() and 3 < len(line_stripped) < 50:
                 is_header = True
-            # Headers with === or ---
             elif line_stripped.startswith('===') or line_stripped.startswith('---'):
-                continue  # Skip divider lines
+                continue
         
         if is_header:
-            # Save previous section
             if current_title or current_content:
                 sections.append((current_title, '\n'.join(current_content)))
             current_title = line_stripped
             current_content = []
-        else:
-            if line_stripped:
-                current_content.append(line_stripped)
+        elif line_stripped:
+            current_content.append(line_stripped)
     
-    # Don't forget last section
     if current_title or current_content:
         sections.append((current_title, '\n'.join(current_content)))
     
@@ -212,10 +305,7 @@ def parse_contract_sections(contract_text: str) -> list:
 
 
 def generate_simple_contract_pdf(contract_spec: Dict[str, Any]) -> bytes:
-    """
-    Generate a simpler, template-based PDF when contract_text isn't available.
-    """
-    # Build contract text from spec
+    """Generate PDF from spec when contract_text isn't available."""
     contract_text = build_contract_from_spec(contract_spec)
     return generate_contract_pdf(contract_text, contract_spec)
 
@@ -231,8 +321,13 @@ def build_contract_from_spec(spec: Dict[str, Any]) -> str:
     dispute = spec.get("dispute_resolution", {}) or {}
     
     deliverables = spec.get("deliverables", []) or []
-    deliverables_text = "\n".join(f"• {d.get('item', d) if isinstance(d, dict) else d}" 
-                                   for d in deliverables) or "• As agreed"
+    deliverables_text = "\n".join(
+        f"• {d.get('item', d) if isinstance(d, dict) else d}" 
+        for d in deliverables
+    ) or "• As agreed"
+    
+    currency_symbol = "£" if payment.get("currency") == "GBP" else "$" if payment.get("currency") == "USD" else ""
+    amount = payment.get("amount", "[Amount]")
     
     return f"""
 1. PARTIES
@@ -247,44 +342,53 @@ Email: {client.get('email', '[Email]')}
 
 2. SCOPE OF WORK
 
-The Freelancer agrees to provide the following deliverables:
+The Freelancer agrees to provide the following deliverables to the Client:
 
 {deliverables_text}
 
-3. PAYMENT TERMS
+3. COMPENSATION
 
-Total Fee: {payment.get('amount', '[Amount]')} {payment.get('currency', '')}
-Payment Schedule: {payment.get('schedule', 'On completion')}
+Total Fee: {currency_symbol}{amount} {payment.get('currency', '')}
+Payment Schedule: {payment.get('schedule', 'Upon completion of services')}
+
+Payment shall be made according to the schedule set forth above. Late payments shall accrue interest at the rate of 1.5% per month.
 
 4. TIMELINE
 
-Start Date: {timeline.get('start_date', 'Upon signing')}
-Deadline: {timeline.get('deadline', '[Deadline]')}
+Commencement Date: {timeline.get('start_date', 'Upon execution of this Agreement')}
+Completion Deadline: {timeline.get('deadline', '[To be determined]')}
 
-5. REVISIONS
+5. REVISIONS AND MODIFICATIONS
 
-Number of revision rounds included: {quality.get('max_revisions', '2')}
-Additional revisions will be charged at an agreed rate.
+The Client shall be entitled to {quality.get('max_revisions', 'two (2)')} rounds of revisions at no additional charge. Additional revisions shall be billed at the Freelancer's standard hourly rate.
 
-6. FAILURE SCENARIOS
+6. INTELLECTUAL PROPERTY
 
-Late Delivery: {failure.get('late_delivery', {}).get('penalty_type', 'No penalty')}
+Upon receipt of full payment, all intellectual property rights in the deliverables shall transfer to the Client. The Freelancer retains the right to display the work in their portfolio for promotional purposes.
 
-Non-Delivery: If Freelancer cannot complete the work, {failure.get('non_delivery', {}).get('refund_percentage', '100')}% refund will be provided.
+7. CONFIDENTIALITY
 
-Client Rejection: {failure.get('client_rejection', {}).get('process', 'Discussion and mediation')}
+Both parties agree to maintain the confidentiality of any proprietary information disclosed during the course of this Agreement.
 
-7. DISPUTE RESOLUTION
+8. TERMINATION
 
-Method: {dispute.get('method', 'Negotiation first, then mediation')}
+Either party may terminate this Agreement with fourteen (14) days written notice. In the event of termination, the Client shall pay for all work completed to date.
 
-8. INTELLECTUAL PROPERTY
+9. LIMITATION OF LIABILITY
 
-Final work ownership transfers to Client upon full payment.
-Freelancer retains the right to display work in portfolio.
+The Freelancer's liability under this Agreement shall not exceed the total fees paid by the Client.
 
-9. AGREEMENT
+10. DISPUTE RESOLUTION
 
-By signing below, both parties agree to the terms of this contract.
+Method: {dispute.get('method', 'Mediation, followed by binding arbitration if necessary')}
+
+Any disputes arising under this Agreement shall be resolved through the method specified above.
+
+11. GENERAL PROVISIONS
+
+This Agreement constitutes the entire agreement between the parties and supersedes all prior negotiations and agreements. This Agreement may only be modified in writing signed by both parties.
+
+12. GOVERNING LAW
+
+This Agreement shall be governed by and construed in accordance with the laws of the jurisdiction in which the Freelancer is located.
 """
-

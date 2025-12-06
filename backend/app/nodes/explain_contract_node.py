@@ -120,14 +120,14 @@ def create_final_message(summary: str, spec: Dict[str, Any]) -> str:
     amount = payment.get("amount", "")
     currency = payment.get("currency", "")
     
-    # Simpler message - details available via buttons
+    # Simpler message - details available via buttons (no markdown formatting)
     return f"""🎉 Your contract is ready, {freelancer_name}!
 
 I've created a professional contract for your work with {client_name}.
 
 Use the buttons below to:
-• **Download PDF** - Get your contract as a professionally formatted PDF
-• **Explain Contract** - See a plain-English breakdown of what you're agreeing to
+• Download PDF - Get your contract as a professionally formatted PDF
+• Explain Contract - See a plain-English breakdown of what you're agreeing to
 
 Need any changes? Just let me know what you'd like to adjust!"""
 
