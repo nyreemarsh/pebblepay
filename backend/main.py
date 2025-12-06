@@ -80,6 +80,12 @@ async def health():
     return {"status": "healthy"}
 
 
+@app.get("/api/opening-message")
+async def get_opening_message_endpoint():
+    """Get the opening message for new conversations."""
+    return {"message": get_opening_message()}
+
+
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat(message: ChatMessage):
 
