@@ -1,8 +1,9 @@
 import React from 'react'
 import { motion } from 'framer-motion'
+import { Loader2 } from 'lucide-react'
 import './GenerateButton.css'
 
-function GenerateButton({ onClick, disabled }) {
+function GenerateButton({ onClick, disabled, isLoading }) {
   return (
     <motion.div
       className="generate-button-container"
@@ -11,15 +12,22 @@ function GenerateButton({ onClick, disabled }) {
       transition={{ type: 'spring', stiffness: 100 }}
     >
       <motion.button
-        className={`generate-button ${disabled ? 'disabled' : ''}`}
+        className={`generate-button ${disabled ? 'disabled' : ''} ${isLoading ? 'loading' : ''}`}
         onClick={onClick}
-        disabled={disabled}
-        whileHover={!disabled ? { scale: 1.05 } : {}}
-        whileTap={!disabled ? { scale: 0.95 } : {}}
+        disabled={disabled || isLoading}
+        whileHover={!disabled && !isLoading ? { scale: 1.05 } : {}}
+        whileTap={!disabled && !isLoading ? { scale: 0.95 } : {}}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >
-        <span>Generate Smart Contract</span>
+        {isLoading ? (
+          <>
+            <Loader2 className="spinner" size={20} />
+            <span>Generating...</span>
+          </>
+        ) : (
+          <span>Generate Smart Contract</span>
+        )}
       </motion.button>
     </motion.div>
   )

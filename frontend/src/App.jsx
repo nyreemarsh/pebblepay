@@ -4,6 +4,7 @@ import BlockPalette from './components/BlockPalette'
 import Canvas from './components/Canvas'
 import Chatbot from './components/Chatbot'
 import GenerateButton from './components/GenerateButton'
+import SolidityModal from './components/SolidityModal'
 import './App.css'
 
 import NodeEditor from './components/NodeEditor'
@@ -23,6 +24,9 @@ function App() {
   const [completeness, setCompleteness] = useState(0)
   const [changedBlocks, setChangedBlocks] = useState([])
   const prevBlocksRef = useRef([])
+  const [solidityData, setSolidityData] = useState(null)
+  const [showSolidityModal, setShowSolidityModal] = useState(false)
+  const [isGenerating, setIsGenerating] = useState(false)
 
   // Initialize with empty placeholder blocks
   useEffect(() => {
@@ -204,10 +208,45 @@ function App() {
     }
   }
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     console.log('Generating smart contract with blocks:', blocks)
     console.log('Edges:', edges)
-    // This will be connected to backend later
+    
+    setIsGenerating(true)
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/generate-solidity`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          blocks: blocks,
+          edges: edges,
+          contract_spec: contractData?.spec || null,
+        }),
+      })
+      
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`)
+      }
+      
+      const data = await response.json()
+      
+      setSolidityData(data)
+      setShowSolidityModal(true)
+      
+    } catch (error) {
+      console.error('Error generating Solidity:', error)
+      // Show error in chat
+      setChatMessages((prev) => [...prev, {
+        id: Date.now(),
+        type: 'suggestion',
+        text: `Sorry, I couldn't generate the Solidity contract. Error: ${error.message}`,
+      }])
+    } finally {
+      setIsGenerating(false)
+    }
   }
 
   // Handler to add messages directly (for explain contract)
@@ -349,10 +388,19 @@ function App() {
           <div className="generate-button-container-wrapper">
             <GenerateButton 
               onClick={handleGenerate}
-              disabled={completeness < 50}
+              disabled={completeness < 50 || isGenerating}
+              isLoading={isGenerating}
             />
           </div>
         </div>
+
+        {/* Solidity Modal */}
+        {showSolidityModal && solidityData && (
+          <SolidityModal
+            data={solidityData}
+            onClose={() => setShowSolidityModal(false)}
+          />
+        )}
 
         {/* Node Editor (slides in when node is selected) */}
         {selectedNodeId && (
