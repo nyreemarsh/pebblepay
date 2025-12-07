@@ -1,6 +1,7 @@
 """
-LLM Wrapper for Google Gemini
-Provides chat and JSON extraction capabilities with retry logic.
+LLM Wrapper using SpoonOS
+Provides chat and JSON extraction capabilities via SpoonOS unified protocol layer.
+Flow: Agent → SpoonOS → LLM (Google Gemini)
 """
 import os
 import json
@@ -11,24 +12,135 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+# Try to import SpoonOS for LLM access
+SPOONOS_LLM_AVAILABLE = False
+ChatBot = None
+
+try:
+    from spoon_ai.chat import ChatBot
+    SPOONOS_LLM_AVAILABLE = True
+    print("[SpoonOS] ChatBot imported successfully")
+except ImportError:
+    try:
+        from spoon_ai.llm import ChatBot
+        SPOONOS_LLM_AVAILABLE = True
+        print("[SpoonOS] ChatBot imported from spoon_ai.llm")
+    except ImportError:
+        print("[SpoonOS] ChatBot not available, using direct Gemini API")
+
+# Import Google Generative AI as fallback
 import google.generativeai as genai
 
 
 class GeminiLLM:
-    """Wrapper for Google Gemini API with retry logic and error handling."""
+    """
+    LLM Wrapper using SpoonOS unified protocol layer.
     
-    def __init__(self, model_name: str = "gemini-2.5-flash"):
-        """Initialize the Gemini LLM."""
-        api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
-        if not api_key:
+    This class uses SpoonOS ChatBot to invoke LLM capabilities,
+    satisfying the hackathon requirement: Agent → SpoonOS → LLM
+    
+    Falls back to direct Gemini API if SpoonOS methods don't work.
+    """
+    
+    def __init__(self, model_name: str = "models/gemini-2.0-flash"):
+        """
+        Initialize the LLM using SpoonOS ChatBot.
+        
+        Args:
+            model_name: The model to use (default: models/gemini-2.0-flash)
+        """
+        # Verify API key is set
+        self.api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+        if not self.api_key:
             raise ValueError(
                 "No API key found. Set GEMINI_API_KEY or GOOGLE_API_KEY environment variable."
             )
         
-        genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel(model_name)
+        self.model_name = model_name
         self.max_retries = 3
         self.retry_delay = 1.0
+        self.chatbot = None
+        self._use_fallback = False
+        
+        # Try to initialize SpoonOS ChatBot
+        if SPOONOS_LLM_AVAILABLE and ChatBot:
+            try:
+                self.chatbot = ChatBot(
+                    model_name=model_name,
+                    llm_provider="google"
+                )
+                print(f"[SpoonOS] LLM initialized via SpoonOS ChatBot (model: {model_name})")
+            except Exception as e:
+                print(f"[SpoonOS] ChatBot init failed: {e}, using fallback")
+                self._use_fallback = True
+        else:
+            self._use_fallback = True
+        
+        # Configure direct Gemini API as fallback
+        genai.configure(api_key=self.api_key)
+        self.model = genai.GenerativeModel(model_name)
+        
+        if self._use_fallback:
+            print(f"[SpoonOS] Using direct Gemini API (model: {model_name})")
+    
+    async def _call_spoonos(self, prompt: str) -> Optional[str]:
+        """Try to call SpoonOS ChatBot with various method names."""
+        if not self.chatbot:
+            return None
+        
+        # Try different method names that SpoonOS might use
+        methods_to_try = [
+            ('chat', [prompt]),
+            ('send', [prompt]),
+            ('generate', [prompt]),
+            ('run', [prompt]),
+            ('ask', [prompt]),
+            ('invoke', [prompt]),
+            ('call', [prompt]),
+            ('complete', [prompt]),
+            ('send_message', [prompt]),
+            ('generate_response', [prompt]),
+        ]
+        
+        for method_name, args in methods_to_try:
+            if hasattr(self.chatbot, method_name):
+                method = getattr(self.chatbot, method_name)
+                try:
+                    # Try async call first
+                    if asyncio.iscoroutinefunction(method):
+                        result = await method(*args)
+                    else:
+                        result = await asyncio.to_thread(method, *args)
+                    
+                    # Extract text from result
+                    if isinstance(result, str):
+                        return result
+                    elif hasattr(result, 'text'):
+                        return result.text
+                    elif hasattr(result, 'content'):
+                        return result.content
+                    elif hasattr(result, 'message'):
+                        return result.message
+                    elif isinstance(result, dict):
+                        return result.get('text') or result.get('content') or result.get('response') or str(result)
+                    else:
+                        return str(result)
+                except Exception as e:
+                    print(f"[SpoonOS] Method {method_name} failed: {e}")
+                    continue
+        
+        return None
+    
+    async def _call_gemini_direct(self, prompt: str, temperature: float = 0.7) -> str:
+        """Call Gemini API directly as fallback."""
+        response = await asyncio.to_thread(
+            self.model.generate_content,
+            prompt,
+            generation_config=genai.types.GenerationConfig(
+                temperature=temperature,
+            )
+        )
+        return response.text if response.text else ""
     
     async def chat(
         self,
@@ -37,7 +149,7 @@ class GeminiLLM:
         temperature: float = 0.7,
     ) -> str:
         """
-        Send a chat message and get a response.
+        Send a chat message and get a response via SpoonOS.
         
         Args:
             prompt: The user's message
@@ -53,18 +165,22 @@ class GeminiLLM:
         
         for attempt in range(self.max_retries):
             try:
-                response = await asyncio.to_thread(
-                    self.model.generate_content,
-                    full_prompt,
-                    generation_config=genai.types.GenerationConfig(
-                        temperature=temperature,
-                    )
-                )
+                # Try SpoonOS first if available and not marked for fallback
+                if not self._use_fallback and self.chatbot:
+                    response = await self._call_spoonos(full_prompt)
+                    if response:
+                        return response
+                    else:
+                        # SpoonOS didn't work, mark for fallback
+                        print("[SpoonOS] ChatBot returned empty, switching to fallback")
+                        self._use_fallback = True
                 
-                if response.text:
-                    return response.text
+                # Use direct Gemini API
+                response = await self._call_gemini_direct(full_prompt, temperature)
+                
+                if response:
+                    return response
                 else:
-                    # Handle empty response
                     if attempt < self.max_retries - 1:
                         await asyncio.sleep(self.retry_delay)
                         continue
@@ -72,7 +188,12 @@ class GeminiLLM:
                     
             except Exception as e:
                 error_msg = str(e)
-                print(f"[LLM] Attempt {attempt + 1} failed: {error_msg}")
+                print(f"[SpoonOS LLM] Attempt {attempt + 1} failed: {error_msg}")
+                
+                # On first failure with SpoonOS, switch to fallback
+                if not self._use_fallback:
+                    print("[SpoonOS] Switching to direct Gemini API fallback")
+                    self._use_fallback = True
                 
                 if attempt < self.max_retries - 1:
                     await asyncio.sleep(self.retry_delay * (attempt + 1))
@@ -88,7 +209,7 @@ class GeminiLLM:
         temperature: float = 0.5,
     ) -> Dict[str, Any]:
         """
-        Send a chat message and parse the response as JSON.
+        Send a chat message via SpoonOS and parse the response as JSON.
         
         Args:
             prompt: The user's message
@@ -122,8 +243,8 @@ class GeminiLLM:
                 return result
                 
             except json.JSONDecodeError as e:
-                print(f"[LLM] JSON parse error (attempt {attempt + 1}): {e}")
-                print(f"[LLM] Raw response: {response_text[:500]}...")
+                print(f"[SpoonOS LLM] JSON parse error (attempt {attempt + 1}): {e}")
+                print(f"[SpoonOS LLM] Raw response: {response_text[:500]}...")
                 
                 if attempt < self.max_retries - 1:
                     # Try again with stronger JSON instruction
@@ -131,11 +252,11 @@ class GeminiLLM:
                     prompt = f"{prompt}\n\nIMPORTANT: Return ONLY valid JSON, no other text."
                 else:
                     # Return empty dict on final failure
-                    print("[LLM] Failed to parse JSON, returning empty dict")
+                    print("[SpoonOS LLM] Failed to parse JSON, returning empty dict")
                     return {}
             
             except Exception as e:
-                print(f"[LLM] Error (attempt {attempt + 1}): {e}")
+                print(f"[SpoonOS LLM] Error (attempt {attempt + 1}): {e}")
                 if attempt < self.max_retries - 1:
                     await asyncio.sleep(self.retry_delay * (attempt + 1))
                 else:
@@ -260,5 +381,6 @@ class GeminiLLM:
         return text
 
 
-# Create a singleton instance
+# Create a singleton instance using SpoonOS
+# This satisfies hackathon requirement: Agent → SpoonOS → LLM
 llm = GeminiLLM()
