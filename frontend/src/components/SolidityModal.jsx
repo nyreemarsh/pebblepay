@@ -95,6 +95,70 @@ function SolidityModal({ data, onClose }) {
     return highlighted
   }
 
+  // Simple syntax highlighting for Python (Neo Boa)
+  const highlightPython = (code) => {
+    if (!code) return ''
+    
+    // Escape HTML first to prevent injection
+    const escapeHtml = (text) => {
+      const div = document.createElement('div')
+      div.textContent = text
+      return div.innerHTML
+    }
+    
+    let highlighted = escapeHtml(code)
+    
+    // Python keywords (must come before types to avoid conflicts)
+    const keywords = ['def', 'class', 'if', 'else', 'elif', 'for', 'while', 'try', 'except',
+                     'finally', 'with', 'as', 'import', 'from', 'return', 'yield', 'pass',
+                     'break', 'continue', 'assert', 'raise', 'lambda', 'and', 'or', 'not',
+                     'in', 'is', 'None', 'True', 'False', 'async', 'await', 'global', 'nonlocal']
+    
+    // Neo Boa specific keywords and decorators
+    const neoKeywords = ['@public', '@private', 'CreateNewEvent', 'CheckWitness', 'get', 'put']
+    
+    // Types (must come after keywords)
+    const types = ['UInt160', 'UInt256', 'ByteString', 'int', 'str', 'bool', 'bytes', 'list', 'dict']
+    
+    // Process in order: comments first, then strings, then keywords/types, then numbers
+    // Comments (handle # comments)
+    highlighted = highlighted.replace(/(#.*$)/gm, '<span class="comment">$1</span>')
+    
+    // Docstrings (handle """ and ''' docstrings)
+    highlighted = highlighted.replace(/("""[\s\S]*?""")/g, '<span class="comment">$1</span>')
+    highlighted = highlighted.replace(/('''[\s\S]*?''')/g, '<span class="comment">$1</span>')
+    
+    // Strings (but skip if already in a comment span)
+    highlighted = highlighted.replace(/(&quot;.*?&quot;)/g, '<span class="string">$1</span>')
+    highlighted = highlighted.replace(/(&#x27;.*?&#x27;)/g, '<span class="string">$1</span>')
+    
+    // Neo Boa keywords first (more specific)
+    neoKeywords.forEach(kw => {
+      const escapedKw = escapeHtml(kw)
+      const regex = new RegExp(`\\b(${escapedKw.replace('@', '&#64;')})\\b`, 'g')
+      highlighted = highlighted.replace(regex, '<span class="keyword">$1</span>')
+    })
+    
+    // Python keywords
+    keywords.forEach(kw => {
+      const escapedKw = escapeHtml(kw)
+      const regex = new RegExp(`\\b(${escapedKw})\\b`, 'g')
+      highlighted = highlighted.replace(regex, '<span class="keyword">$1</span>')
+    })
+    
+    // Types
+    types.forEach(t => {
+      const escapedT = escapeHtml(t)
+      const regex = new RegExp(`\\b(${escapedT})\\b`, 'g')
+      highlighted = highlighted.replace(regex, '<span class="type">$1</span>')
+    })
+    
+    // Numbers (last, to avoid conflicts)
+    highlighted = highlighted.replace(/\b(\d+)\b/g, '<span class="number">$1</span>')
+    
+    return highlighted
+  }
+
   return (
     <AnimatePresence>
       <motion.div
@@ -221,9 +285,11 @@ function SolidityModal({ data, onClose }) {
                   }} 
                 />
               ) : activeTab === 'neo' ? (
-                <code style={{ whiteSpace: 'pre-wrap' }}>
-                  {data.neo_python || '# Neo contract code will appear here\n# If this message appears, the Neo contract generation may have failed.\n# Check the backend terminal for error details.'}
-                </code>
+                <code 
+                  dangerouslySetInnerHTML={{ 
+                    __html: highlightPython(data.neo_python || '# Neo contract code will appear here\n# If this message appears, the Neo contract generation may have failed.\n# Check the backend terminal for error details.')
+                  }} 
+                />
               ) : (
                 <code>{data.abi}</code>
               )}
@@ -316,9 +382,13 @@ function SolidityModal({ data, onClose }) {
                       }} 
                     />
                   ) : activeTab === 'neo' ? (
-                    <code style={{ whiteSpace: 'pre-wrap' }}>
-                      {data.neo_python || '# Neo contract code will appear here\n# If this message appears, the Neo contract generation may have failed.\n# Check the backend terminal for error details.'}
-                    </code>
+                    <code 
+                      dangerouslySetInnerHTML={{ 
+                        __html: data.neo_python 
+                          ? highlightPython(data.neo_python)
+                          : highlightPython('# Neo contract code will appear here\n# If this message appears, the Neo contract generation may have failed.\n# Check the backend terminal for error details.')
+                      }} 
+                    />
                   ) : (
                     <code>{data.abi}</code>
                   )}

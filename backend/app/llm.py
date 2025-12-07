@@ -145,22 +145,43 @@ class GeminiLLM:
     
     def _extract_json(self, text: str) -> str:
         """Extract and fix JSON from text that might have markdown or errors."""
+        import re
+        
         text = text.strip()
         
-        # Remove markdown code blocks
-        if text.startswith("```"):
-            lines = text.split("\n")
-            if lines[0].startswith("```"):
-                lines = lines[1:]
-            if lines and lines[-1].strip() == "```":
-                lines = lines[:-1]
-            text = "\n".join(lines).strip()
+        # Remove markdown code blocks (handle ```json and ```)
+        if "```" in text:
+            # Try to find JSON code block specifically
+            json_block_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', text, re.DOTALL)
+            if json_block_match:
+                text = json_block_match.group(1).strip()
+            else:
+                # Generic code block removal
+                lines = text.split("\n")
+                if lines[0].startswith("```"):
+                    lines = lines[1:]
+                if lines and lines[-1].strip() == "```":
+                    lines = lines[:-1]
+                text = "\n".join(lines).strip()
         
-        # Find JSON object boundaries
+        # Find JSON object boundaries (handle nested objects)
         start = text.find("{")
-        end = text.rfind("}")
+        if start == -1:
+            return text
         
-        if start != -1 and end != -1 and end > start:
+        # Count braces to find the matching closing brace
+        brace_count = 0
+        end = start
+        for i in range(start, len(text)):
+            if text[i] == '{':
+                brace_count += 1
+            elif text[i] == '}':
+                brace_count -= 1
+                if brace_count == 0:
+                    end = i
+                    break
+        
+        if end > start:
             text = text[start:end + 1]
         
         # Fix common JSON issues
@@ -171,21 +192,49 @@ class GeminiLLM:
     def _fix_json_errors(self, text: str) -> str:
         """Attempt to fix common JSON errors from LLM output."""
         import re
+        import json
+        
+        # First, try to parse as-is
+        try:
+            json.loads(text)
+            return text
+        except:
+            pass
+        
+        # Fix multi-line strings in JSON (common when Python code is in JSON)
+        # Replace unescaped newlines in string values with \n
+        def fix_multiline_string(match):
+            key = match.group(1)
+            value_start = match.group(2)
+            # Find the closing quote, handling escaped quotes
+            rest = match.group(3)
+            # Replace actual newlines with \n in the string value
+            # But preserve the structure
+            return f'"{key}": "{value_start}{rest}"'
+        
+        # Handle strings that span multiple lines
+        # Pattern: "key": "value with\nnewlines"
+        text = re.sub(
+            r'"([^"]+)":\s*"([^"]*)\n([^"]*)"',
+            lambda m: f'"{m.group(1)}": "{m.group(2)}\\n{m.group(3)}"',
+            text,
+            flags=re.MULTILINE
+        )
         
         # Fix truncated strings (missing closing quote)
-        # Look for patterns like: "email": "something without closing quote
-        # followed by a newline and another field
         lines = text.split("\n")
         fixed_lines = []
+        in_string = False
         
         for i, line in enumerate(lines):
-            # Check if line has an unclosed string
-            # Count quotes (ignoring escaped ones)
+            # Track if we're inside a string
             quote_count = len(re.findall(r'(?<!\\)"', line))
-            
             if quote_count % 2 == 1:
+                in_string = not in_string
+            
+            # Check if line has an unclosed string
+            if quote_count % 2 == 1 and not in_string:
                 # Odd number of quotes - likely unclosed string
-                # Try to close it before any trailing comma or content
                 line = line.rstrip()
                 if line.endswith(","):
                     line = line[:-1] + '",'
@@ -196,15 +245,17 @@ class GeminiLLM:
         
         text = "\n".join(fixed_lines)
         
-        # Fix control characters in strings
-        # Remove any control characters except \n, \r, \t
+        # Fix control characters in strings (but preserve \n, \r, \t)
         def clean_string_content(match):
             content = match.group(1)
-            # Remove problematic control characters
+            # Escape newlines, tabs, etc. properly
+            content = content.replace('\n', '\\n').replace('\r', '\\r').replace('\t', '\\t')
+            # Remove other problematic control characters
             cleaned = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f]', '', content)
             return f'"{cleaned}"'
         
-        text = re.sub(r'"([^"]*)"', clean_string_content, text)
+        # Only fix strings that aren't already properly escaped
+        text = re.sub(r'"([^"]*(?:\\.[^"]*)*)"', clean_string_content, text)
         
         return text
 

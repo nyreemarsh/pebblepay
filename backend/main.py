@@ -26,6 +26,7 @@ from app.pdf_generator import generate_contract_pdf
 from app.nodes.explain_contract_node import explain_contract_node
 from app.database import init_db, save_session, get_session, list_sessions, delete_session
 from app.services.solidity_service import generate_smart_contract
+from app.services.neo_service import generate_neo_contract
 
 # ——— TTS Support (from main branch)
 from tts import router as tts_router
@@ -96,6 +97,7 @@ class SolidityResponse(BaseModel):
     abi: str
     status: str
     error: Optional[str] = None
+    neo_python: Optional[str] = None  # Neo Boa Python code
 
 
 @app.get("/")
@@ -325,26 +327,47 @@ async def delete_contract(session_id: str):
 @app.post("/api/generate-solidity", response_model=SolidityResponse)
 async def generate_solidity(request: SolidityRequest):
     """
-    Generate Solidity smart contract code from visual blocks.
+    Generate Solidity and Neo Python smart contract code from visual blocks.
     
-    Accepts React Flow blocks and edges, converts them to a Solidity contract.
+    Accepts React Flow blocks and edges, converts them to both Solidity and Neo Boa contracts.
     """
     try:
-        result = await generate_smart_contract(
+        # Generate Solidity contract
+        solidity_result = await generate_smart_contract(
             blocks=request.blocks,
             edges=request.edges,
             contract_spec=request.contract_spec,
         )
         
+        # Also generate Neo contract in parallel
+        neo_python = None
+        try:
+            print(f"[API] Starting Neo contract generation...")
+            neo_result = await generate_neo_contract(
+                blocks=request.blocks,
+                edges=request.edges,
+                contract_spec=request.contract_spec
+            )
+            neo_python = neo_result.get("neo_python", "")
+            print(f"[API] Neo contract generation completed. Code length: {len(neo_python) if neo_python else 0}")
+            if not neo_python:
+                print(f"[API] WARNING: Neo result exists but neo_python field is empty. Result keys: {neo_result.keys()}")
+        except Exception as neo_error:
+            import traceback
+            print(f"[API] Neo contract generation error (non-fatal): {neo_error}")
+            print(f"[API] Traceback: {traceback.format_exc()}")
+            neo_python = f"# Error generating Neo contract: {str(neo_error)}\n# Check backend logs for details."
+        
         return SolidityResponse(
-            solidity=result.get("solidity", ""),
-            contractName=result.get("contractName", "GeneratedContract"),
-            explanation=result.get("explanation", ""),
-            functions=result.get("functions", []),
-            events=result.get("events", []),
-            abi=result.get("abi", "[]"),
-            status=result.get("status", "success"),
-            error=result.get("error"),
+            solidity=solidity_result.get("solidity", ""),
+            contractName=solidity_result.get("contractName", "GeneratedContract"),
+            explanation=solidity_result.get("explanation", ""),
+            functions=solidity_result.get("functions", []),
+            events=solidity_result.get("events", []),
+            abi=solidity_result.get("abi", "[]"),
+            status=solidity_result.get("status", "success"),
+            error=solidity_result.get("error"),
+            neo_python=neo_python,
         )
         
     except Exception as e:
