@@ -27,6 +27,7 @@ from app.nodes.explain_contract_node import explain_contract_node
 from app.database import init_db, save_session, get_session, list_sessions, delete_session
 from app.services.solidity_service import generate_smart_contract
 from app.services.neo_service import generate_neo_contract
+from app.services.storage_service import storage_service
 
 # ——— TTS Support (from main branch)
 from tts import router as tts_router
@@ -98,6 +99,26 @@ class SolidityResponse(BaseModel):
     status: str
     error: Optional[str] = None
     neo_python: Optional[str] = None  # Neo Boa Python code
+
+
+class StorageRequest(BaseModel):
+    """Request model for saving contract to IPFS via 4EVERLAND."""
+    contract_code: str
+    contract_name: str
+    contract_type: str = "solidity"  # "solidity" or "neo_python"
+    metadata: Optional[Dict[str, Any]] = None
+
+
+class StorageResponse(BaseModel):
+    """Response model for IPFS storage operations."""
+    ipfs_hash: Optional[str] = None
+    gateway_url: Optional[str] = None
+    filename: Optional[str] = None
+    timestamp: Optional[str] = None
+    contract_type: Optional[str] = None
+    status: str
+    error: Optional[str] = None
+    note: Optional[str] = None
 
 
 @app.get("/")
@@ -383,6 +404,89 @@ def get_field_suggestions(field: str) -> list:
         "late_delivery_policy": ["No penalty", "5% per day late", "3-day grace period"],
     }
     return suggestions_map.get(field, [])
+
+
+# ——— IPFS Storage Endpoints (SpoonOS 4EVERLAND Toolkit) ———
+# These endpoints satisfy hackathon requirement 2:
+# "Use at least one Tool module from the official Spoon-toolkit"
+
+@app.post("/api/storage/save-contract", response_model=StorageResponse)
+async def save_contract_to_ipfs(request: StorageRequest):
+    """
+    Save a smart contract to IPFS via SpoonOS 4EVERLAND toolkit.
+    
+    This endpoint uses SpoonOS's 4EVERLAND Storage integration,
+    satisfying the hackathon requirement for toolkit usage.
+    
+    Returns an IPFS hash (CID) and gateway URL for permanent access.
+    """
+    try:
+        print(f"[SpoonOS Storage] Saving contract '{request.contract_name}' to IPFS...")
+        
+        result = await storage_service.save_contract(
+            contract_code=request.contract_code,
+            contract_name=request.contract_name,
+            contract_type=request.contract_type,
+            metadata=request.metadata
+        )
+        
+        print(f"[SpoonOS Storage] Contract saved. Status: {result.get('status')}")
+        
+        return StorageResponse(
+            ipfs_hash=result.get("ipfs_hash"),
+            gateway_url=result.get("gateway_url"),
+            filename=result.get("filename"),
+            timestamp=result.get("timestamp"),
+            contract_type=result.get("contract_type"),
+            status=result.get("status", "success"),
+            error=result.get("error"),
+            note=result.get("note")
+        )
+        
+    except Exception as e:
+        print(f"[SpoonOS Storage] Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/storage/status")
+async def get_storage_status():
+    """
+    Check the status of the SpoonOS 4EVERLAND storage service.
+    """
+    return {
+        "available": storage_service.is_available,
+        "provider": "4EVERLAND (SpoonOS Toolkit)",
+        "bucket": storage_service.bucket,
+        "gateway": storage_service.gateway_url
+    }
+
+
+@app.get("/api/storage/{ipfs_hash}")
+async def get_contract_from_ipfs(ipfs_hash: str):
+    """
+    Retrieve a contract from IPFS via 4EVERLAND gateway.
+    
+    Args:
+        ipfs_hash: The IPFS content hash (CID)
+        
+    Returns:
+        The contract content and metadata
+    """
+    try:
+        result = await storage_service.get_contract(ipfs_hash)
+        
+        if result.get("status") == "error":
+            raise HTTPException(
+                status_code=404, 
+                detail=result.get("error", "Contract not found")
+            )
+        
+        return result
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 if __name__ == "__main__":

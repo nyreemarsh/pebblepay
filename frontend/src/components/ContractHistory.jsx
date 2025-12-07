@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { History, FileText, Trash2, X, RefreshCw, Plus, AlertCircle } from 'lucide-react'
 import './ContractHistory.css'
-
-const API_BASE_URL = 'http://localhost:8000'
+import { API_BASE_URL } from '../config'
 
 function ContractHistory({ onLoadContract, onNewContract, currentSessionId }) {
   const [isOpen, setIsOpen] = useState(false)
@@ -136,7 +135,7 @@ function ContractHistory({ onLoadContract, onNewContract, currentSessionId }) {
                     <AlertCircle size={40} style={{ color: '#F7B2A8', marginBottom: '12px' }} />
                     <p style={{ color: '#6B5353', fontWeight: 'bold' }}>Backend not connected</p>
                     <span style={{ color: '#6B5353', fontSize: '0.85rem', textAlign: 'center', maxWidth: '200px' }}>
-                      Make sure the backend server is running on http://localhost:8000
+                      Make sure the backend server is running
                     </span>
                     <button 
                       onClick={fetchContracts}

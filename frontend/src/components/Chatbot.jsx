@@ -3,8 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Send, Mic, Volume2, VolumeX, Download, FileText } from 'lucide-react'
 import { useScribe } from '@elevenlabs/react'
 import './Chatbot.css'
-
-const API_BASE_URL = 'http://localhost:8000'
+import { API_BASE_URL } from '../config'
 
 function Chatbot({ messages, onMessage, sessionId, onAddMessage, isLoading }) {
   const [input, setInput] = useState('')
@@ -61,7 +60,7 @@ function Chatbot({ messages, onMessage, sessionId, onAddMessage, isLoading }) {
     
     try {
       console.log('Sending TTS request for:', text)
-      const response = await fetch("http://localhost:8000/api/tts", {
+      const response = await fetch(`${API_BASE_URL}/api/tts`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text })
@@ -96,7 +95,7 @@ function Chatbot({ messages, onMessage, sessionId, onAddMessage, isLoading }) {
       })
     } catch (error) {
       console.error('Error with TTS:', error)
-      alert(`TTS Error: ${error.message}. Make sure the backend is running on http://localhost:8000`)
+      alert(`TTS Error: ${error.message}. Make sure the backend is running.`)
       currentAudioRef.current = null
     }
   }

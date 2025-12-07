@@ -10,9 +10,7 @@ import './App.css'
 
 import NodeEditor from './components/NodeEditor'
 import { contractSpecToBlocks, getChangedBlockIds } from './utils/contractSpecToBlocks'
-
-// API base URL - adjust if your backend runs on a different port
-const API_BASE_URL = 'http://localhost:8000'
+import { API_BASE_URL } from './config'
 
 function App() {
   const [blocks, setBlocks] = useState([])
